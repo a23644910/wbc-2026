@@ -36,8 +36,7 @@
         /* --- 網格佈局 --- */
         .dashboard-grid {
             display: grid;
-            grid-template-columns: 350px 1fr;
-            /* 調整比例：下方名單區給予固定 180px，確保夠放兩排 */
+            grid-template-columns: 350px 1fr 320px; 
             grid-template-rows: 1fr 180px; 
             gap: 10px;
             width: 98%;
@@ -82,7 +81,7 @@
             flex: 1;
             display: flex;
             flex-direction: column;
-            justify-content: space-between; /* 平均撐開 */
+            justify-content: space-between;
             padding: 8px;
             gap: 4px;
         }
@@ -96,7 +95,7 @@
             align-items: center;
             padding: 0 8px;
             transition: 0.2s;
-            min-height: 0; /* 防止被內容撐爆 */
+            min-height: 0;
         }
         .lineup-slot.drag-over { background: rgba(186, 0, 33, 0.3); border-color: var(--wbc-red); }
 
@@ -110,32 +109,13 @@
             margin-right: 8px;
         }
 
-        .slot-content {
-            flex: 1;
-            overflow: hidden;
-        }
-        .slot-name { 
-            font-size: 1.2rem; 
-            color: var(--wbc-gold); 
-            white-space: nowrap; 
-            overflow: hidden; 
-            text-overflow: ellipsis; 
-            line-height: 1;
-        }
+        .slot-content { flex: 1; overflow: hidden; }
+        .slot-name { font-size: 1.2rem; color: var(--wbc-gold); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; line-height: 1; }
         .placeholder { color: #555; font-size: 0.8rem; letter-spacing: 1px; }
 
         .pos-select {
-            background: #111;
-            color: var(--wbc-teal);
-            border: 1px solid #444;
-            border-radius: 3px;
-            padding: 0 2px;
-            font-family: 'Roboto Mono';
-            font-weight: bold;
-            font-size: 0.8rem;
-            margin-left: 5px;
-            cursor: pointer;
-            height: 24px;
+            background: #111; color: var(--wbc-teal); border: 1px solid #444; border-radius: 3px;
+            padding: 0 2px; font-family: 'Roboto Mono'; font-weight: bold; font-size: 0.8rem; margin-left: 5px; cursor: pointer; height: 24px;
         }
 
         .btn-reset {
@@ -144,18 +124,18 @@
         }
         .btn-reset:hover { background: var(--wbc-red); color: white; }
 
-        /* --- 右上：資訊區 --- */
-        .info-panel {
+        /* --- 中間：大倒數區 --- */
+        .countdown-panel {
             grid-column: 2 / 3;
             grid-row: 1 / 2;
             background: transparent;
             border: none;
             box-shadow: none;
             backdrop-filter: none;
-            display: grid;
-            grid-template-columns: 1fr 260px;
-            gap: 10px;
-            overflow: hidden; /* 重要：防止撐開 */
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
         }
 
         .countdown-box {
@@ -168,90 +148,99 @@
             justify-content: center;
             align-items: center;
             text-align: center;
+            padding: 20px;
+            width: 100%;
+            height: 100%;
+            position: relative;
         }
-        .wbc-logo-ring { width: 40px; height: 40px; border-radius: 50%; background: conic-gradient(var(--wbc-red) 0deg 90deg, var(--wbc-blue) 90deg 180deg, var(--wbc-teal) 180deg 270deg, var(--wbc-gold) 270deg 360deg); margin-bottom: 10px; position: relative; }
-        .wbc-logo-ring::after { content: ''; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 28px; height: 28px; background: #0d1e35; border-radius: 50%; }
+        .wbc-logo-ring { width: 50px; height: 50px; border-radius: 50%; background: conic-gradient(var(--wbc-red) 0deg 90deg, var(--wbc-blue) 90deg 180deg, var(--wbc-teal) 180deg 270deg, var(--wbc-gold) 270deg 360deg); margin-bottom: 10px; position: relative; }
+        .wbc-logo-ring::after { content: ''; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 36px; height: 36px; background: #0d1e35; border-radius: 50%; }
         
-        #total-seconds { font-family: 'Roboto Mono'; font-size: 4.5rem; font-weight: 700; line-height: 0.9; text-shadow: 0 0 20px rgba(0, 163, 161, 0.6); }
-        .timer-label { font-size: 1rem; color: #aaa; letter-spacing: 2px; margin-top: 5px; text-transform: uppercase; }
+        #total-seconds { font-family: 'Roboto Mono'; font-size: 5rem; font-weight: 700; line-height: 1; text-shadow: 0 0 30px rgba(0, 163, 161, 0.6); margin-bottom: 5px; }
+        .timer-label { font-size: 1.2rem; color: #888; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 20px; }
 
-        .schedule-box {
-            background: var(--glass-bg);
-            border: 1px solid var(--glass-border);
-            border-top: 3px solid var(--wbc-gold);
-            border-radius: 10px;
-            padding: 10px;
+        /* 詳細倒數 */
+        .detail-timer {
             display: flex;
-            flex-direction: column;
-            gap: 5px;
-            overflow-y: auto;
+            gap: 25px;
+            padding: 10px 30px;
+            background: rgba(0,0,0,0.3);
+            border-radius: 8px;
+            border: 1px solid rgba(255,255,255,0.05);
+            margin-bottom: 30px;
         }
-        .schedule-item { border-bottom: 1px dashed rgba(255,255,255,0.1); padding-bottom: 4px; margin-bottom: 2px; font-size: 0.9rem;}
-        .sch-date { color: var(--wbc-red); font-family: 'Roboto Mono'; font-weight: bold; font-size: 0.85rem; margin-right: 5px;}
-        .sch-vs { color: #ccc; }
-        .sch-timer { font-family: 'Roboto Mono'; font-size: 0.75rem; color: var(--wbc-teal); float: right; }
+        .dt-item { display: flex; flex-direction: column; align-items: center; min-width: 50px; }
+        .dt-val { font-family: 'Roboto Mono'; font-size: 2rem; font-weight: bold; color: white; line-height: 1;}
+        .dt-lbl { font-size: 0.8rem; color: var(--wbc-light-blue); margin-top: 5px; }
 
-        /* --- 下方：名單池 (Grid System) --- */
+        /* [NEW] 進度條區域 */
+        .progress-container {
+            width: 80%;
+            max-width: 500px;
+            margin-top: 10px;
+        }
+        .progress-labels {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.9rem;
+            color: var(--wbc-gold);
+            margin-bottom: 5px;
+            text-transform: uppercase;
+        }
+        .bar-bg {
+            width: 100%;
+            height: 8px;
+            background: #222;
+            border-radius: 4px;
+            overflow: hidden;
+            box-shadow: inset 0 1px 3px rgba(0,0,0,0.8);
+        }
+        .bar-fill {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, var(--wbc-red), var(--wbc-gold));
+            box-shadow: 0 0 10px rgba(186, 0, 33, 0.7);
+        }
+        .percentage-text {
+            font-family: 'Roboto Mono';
+            font-size: 1.2rem;
+            color: white;
+            text-align: right;
+            margin-top: 5px;
+            font-weight: bold;
+        }
+
+
+        /* --- 右側：賽程 --- */
+        .schedule-panel {
+            grid-column: 3 / 4;
+            grid-row: 1 / 2;
+            border-top: 3px solid var(--wbc-gold);
+        }
+        .schedule-container { padding: 10px; display: flex; flex-direction: column; gap: 12px; overflow-y: auto; flex: 1; }
+        .schedule-item { border-bottom: 1px dashed rgba(255,255,255,0.1); padding-bottom: 8px; margin-bottom: 2px; display: flex; flex-direction: column; }
+        .sch-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; }
+        .sch-date { color: var(--wbc-red); font-family: 'Roboto Mono'; font-weight: bold; font-size: 0.9rem; }
+        .sch-vs { color: #eee; font-size: 0.95rem; }
+        .sch-timer { font-family: 'Roboto Mono'; font-size: 0.9rem; color: var(--wbc-teal); text-align: right; background: rgba(0,0,0,0.3); padding: 2px 6px; border-radius: 4px; align-self: flex-end; }
+
+
+        /* --- 下方：名單池 --- */
         .roster-panel {
-            grid-column: 1 / 3;
+            grid-column: 1 / 4;
             grid-row: 2 / 3;
             border-top: 3px solid var(--wbc-blue);
         }
-
-        .roster-grid {
-            display: grid;
-            grid-template-columns: 0.8fr 1.5fr 1fr; /* 捕手窄一點，內野寬一點 */
-            height: 100%;
-            overflow: hidden;
-        }
-
-        .roster-col {
-            padding: 8px;
-            border-right: 1px solid rgba(255,255,255,0.1);
-            display: flex;
-            flex-direction: column;
-        }
+        .roster-grid { display: grid; grid-template-columns: 0.8fr 1.5fr 1fr; height: 100%; overflow: hidden; }
+        .roster-col { padding: 8px; border-right: 1px solid rgba(255,255,255,0.1); display: flex; flex-direction: column; }
         .roster-col:last-child { border-right: none; }
-
-        .col-title {
-            font-size: 0.8rem; color: #888; margin-bottom: 6px; border-left: 2px solid var(--wbc-teal); padding-left: 5px; text-transform: uppercase;
-        }
-
-        .card-container {
-            display: grid;
-            /* 自動填滿，最小寬度 85px，防止太擠 */
-            grid-template-columns: repeat(auto-fill, minmax(85px, 1fr));
-            gap: 6px;
-            overflow-y: auto; /* 如果真的太多，內部微捲動，不影響整頁 */
-            padding-right: 2px;
-        }
-        /* 隱藏捲軸但保留功能 */
+        .col-title { font-size: 0.8rem; color: #888; margin-bottom: 6px; border-left: 2px solid var(--wbc-teal); padding-left: 5px; text-transform: uppercase; }
+        .card-container { display: grid; grid-template-columns: repeat(auto-fill, minmax(85px, 1fr)); gap: 6px; overflow-y: auto; padding-right: 2px; }
         .card-container::-webkit-scrollbar { width: 0px; }
-
-        /* 選手卡片設計 */
-        .chip {
-            background: rgba(255, 255, 255, 0.1);
-            border: 1px solid rgba(255,255,255,0.15);
-            border-radius: 4px;
-            height: 32px; /* 固定高度，很扁 */
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: grab;
-            user-select: none;
-            transition: 0.2s;
-        }
+        .chip { background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255,255,255,0.15); border-radius: 4px; height: 32px; display: flex; align-items: center; justify-content: center; cursor: grab; user-select: none; transition: 0.2s; }
         .chip:hover { background: rgba(255,255,255,0.25); border-color: var(--wbc-light-blue); }
         .chip:active { cursor: grabbing; }
-
-        .chip-name {
-            font-size: 0.9rem; /* 字體縮小 */
-            color: white;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis; /* 太長自動變... */
-            padding: 0 4px;
-        }
+        .chip-name { font-size: 0.9rem; color: white; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding: 0 4px; }
 
     </style>
 </head>
@@ -289,37 +278,82 @@
             </div>
         </aside>
 
-        <main class="info-panel">
+        <main class="countdown-panel">
             <div class="countdown-box">
                 <div class="wbc-logo-ring"></div>
-                <h1 style="margin:0; font-size:1.5rem; letter-spacing:2px; color:#ddd;">WBC 2026</h1>
+                <h1 style="margin:0; font-size:2rem; letter-spacing:3px; color:#ddd;">2026 World Baseball Classic</h1>
+                
                 <span id="total-seconds">0</span>
-                <span class="timer-label">Seconds To First Pitch</span>
-            </div>
+                <span class="timer-label">Sec</span>
 
-            <div class="schedule-box">
-                <div class="schedule-item">
-                    <span class="sch-date">2/06</span> <span class="sch-vs">Roster Announcement</span>
-                    <span class="sch-timer" id="timer-roster">...</span>
+                <div class="detail-timer">
+                    <div class="dt-item">
+                        <span class="dt-val" id="d-val">0</span>
+                        <span class="dt-lbl">DAYS</span>
+                    </div>
+                    <div class="dt-item">
+                        <span class="dt-val" id="h-val">00</span>
+                        <span class="dt-lbl">HRS</span>
+                    </div>
+                    <div class="dt-item">
+                        <span class="dt-val" id="m-val">00</span>
+                        <span class="dt-lbl">MIN</span>
+                    </div>
+                    <div class="dt-item">
+                        <span class="dt-val" id="s-val">00</span>
+                        <span class="dt-lbl">SEC</span>
+                    </div>
                 </div>
-                <div class="schedule-item">
-                    <span class="sch-date">2/26</span> <span class="sch-vs">vs Hawks (TPE)</span>
-                    <span class="sch-timer" id="timer-game1">...</span>
+
+                <div class="progress-container">
+                    <div class="progress-labels">
+                        <span>Since '23 Final</span>
+                        <span>Road to Tokyo</span>
+                    </div>
+                    <div class="bar-bg">
+                        <div class="bar-fill" id="progress-bar"></div>
+                    </div>
+                    <div class="percentage-text" id="percentage">0.0000000%</div>
                 </div>
-                <div class="schedule-item">
-                    <span class="sch-date">2/27</span> <span class="sch-vs">vs Fighters (TPE)</span>
-                    <span class="sch-timer" id="timer-game2">...</span>
-                </div>
-                <div class="schedule-item">
-                    <span class="sch-date">3/02</span> <span class="sch-vs">vs Buffaloes (JPN)</span>
-                    <span class="sch-timer" id="timer-game3">...</span>
-                </div>
-                <div class="schedule-item">
-                    <span class="sch-date">3/03</span> <span class="sch-vs">vs Hawks (JPN)</span>
-                    <span class="sch-timer" id="timer-game4">...</span>
-                </div>
+
             </div>
         </main>
+
+        <aside class="panel schedule-panel">
+            <h3>UPCOMING SCHEDULE</h3>
+            <div class="schedule-container">
+                <div class="schedule-item">
+                    <div class="sch-header">
+                        <span class="sch-date">2/06</span> <span class="sch-vs">Roster Announce</span>
+                    </div>
+                    <div class="sch-timer" id="timer-roster">...</div>
+                </div>
+                <div class="schedule-item">
+                    <div class="sch-header">
+                        <span class="sch-date">2/26</span> <span class="sch-vs">vs Hawks (TPE)</span>
+                    </div>
+                    <div class="sch-timer" id="timer-game1">...</div>
+                </div>
+                <div class="schedule-item">
+                    <div class="sch-header">
+                        <span class="sch-date">2/27</span> <span class="sch-vs">vs Fighters (TPE)</span>
+                    </div>
+                    <div class="sch-timer" id="timer-game2">...</div>
+                </div>
+                <div class="schedule-item">
+                    <div class="sch-header">
+                        <span class="sch-date">3/02</span> <span class="sch-vs">vs Buffaloes (JPN)</span>
+                    </div>
+                    <div class="sch-timer" id="timer-game3">...</div>
+                </div>
+                <div class="schedule-item">
+                    <div class="sch-header">
+                        <span class="sch-date">3/03</span> <span class="sch-vs">vs Hawks (JPN)</span>
+                    </div>
+                    <div class="sch-timer" id="timer-game4">...</div>
+                </div>
+            </div>
+        </aside>
 
         <aside class="panel roster-panel">
             <h3>ROSTER POOL</h3>
@@ -367,7 +401,11 @@
     </div>
 
     <script>
+        // 設定起點 (2023冠軍賽) 與 終點 (2026首戰)
+        const startDate = new Date("2023-03-22T11:00:00").getTime();
         const targetDate = new Date("2026-03-05T11:00:00").getTime(); 
+        const totalDuration = targetDate - startDate;
+
         const sideEvents = [
             { id: "timer-roster", time: "2026-02-06T08:00:00" },
             { id: "timer-game1",  time: "2026-02-26T17:00:00" },
@@ -379,7 +417,32 @@
         function updateAll() {
             const now = new Date().getTime();
             const distance = targetDate - now;
+            const elapsed = now - startDate;
+            
+            // 1. 中間大秒數
             document.getElementById("total-seconds").innerText = distance < 0 ? "PLAY BALL" : Math.floor(distance / 1000).toLocaleString();
+
+            // 2. 中間詳細倒數
+            if (distance >= 0) {
+                const d = Math.floor(distance / (1000 * 60 * 60 * 24));
+                const h = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                const m = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+                const s = Math.floor((distance % (1000 * 60)) / 1000);
+                const pad = (n) => n < 10 ? '0' + n : n;
+                document.getElementById("d-val").innerText = d;
+                document.getElementById("h-val").innerText = pad(h);
+                document.getElementById("m-val").innerText = pad(m);
+                document.getElementById("s-val").innerText = pad(s);
+            }
+
+            // 3. 進度條與百分比
+            let percent = (elapsed / totalDuration) * 100;
+            if (percent > 100) percent = 100;
+            if (percent < 0) percent = 0;
+            document.getElementById("percentage").innerText = percent.toFixed(7) + "%";
+            document.getElementById("progress-bar").style.width = percent + "%";
+
+            // 4. 右側欄位詳細倒數 (日 時 分 秒)
             sideEvents.forEach(event => {
                 const dist = new Date(event.time).getTime() - now;
                 const el = document.getElementById(event.id);
@@ -387,13 +450,16 @@
                 else {
                     const d = Math.floor(dist / (1000 * 60 * 60 * 24));
                     const h = Math.floor((dist % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-                    el.innerText = `${d}d ${h}h`;
+                    const m = Math.floor((dist % (1000 * 60 * 60)) / (1000 * 60));
+                    const s = Math.floor((dist % (1000 * 60)) / 1000);
+                    el.innerText = `${d}d ${h}h ${m}m ${s}s`;
                 }
             });
         }
-        setInterval(updateAll, 1000);
+        setInterval(updateAll, 30); // 為了讓百分比跳動順暢，更新頻率設為 30ms
         updateAll();
 
+        // 拖放與介面邏輯
         function allowDrop(ev) { ev.preventDefault(); ev.currentTarget.classList.add('drag-over'); }
         document.addEventListener("dragleave", function(event) { if (event.target.classList && event.target.classList.contains("lineup-slot")) { event.target.classList.remove("drag-over"); }});
         function drag(ev) { ev.dataTransfer.setData("name", ev.target.getAttribute("data-name")); }
