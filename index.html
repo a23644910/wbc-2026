@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WBC 2026 Manager Dashboard</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Teko:wght@300;400;600;700&family=Roboto+Mono:wght@400;700&display=swap');
+
+        :root {
+            --wbc-blue: #002D62;
+            --wbc-light-blue: #0077c8;
+            --wbc-red: #BA0021;
+            --wbc-gold: #C49102;
+            --wbc-teal: #00A3A1;
+            --text-white: #ffffff;
+            --glass-bg: rgba(0, 30, 60, 0.85);
+            --glass-border: rgba(255, 255, 255, 0.2);
+            --slot-bg: rgba(0, 0, 0, 0.5);
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            background: radial-gradient(circle at 60% 30%, #1e4b85 0%, #061121 80%);
+            color: var(--text-white);
+            font-family: 'Teko', sans-serif;
+            height: 100vh;
+            width: 100vw;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* --- 網格佈局 --- */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 350px 1fr;
+            /* 調整比例：下方名單區給予固定 180px，確保夠放兩排 */
+            grid-template-rows: 1fr 180px; 
+            gap: 10px;
+            width: 98%;
+            height: 98vh;
+            padding: 10px;
+            box-sizing: border-box;
+        }
+
+        /* --- 通用面板 --- */
+        .panel {
+            background: var(--glass-bg);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--glass-border);
+            border-radius: 10px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.6);
+        }
+
+        h3 {
+            font-size: 1rem;
+            color: var(--wbc-gold);
+            margin: 0;
+            padding: 6px 10px;
+            background: rgba(0,0,0,0.4);
+            border-bottom: 1px solid var(--glass-border);
+            letter-spacing: 1px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        /* --- 左側：打序 --- */
+        .lineup-panel {
+            grid-column: 1 / 2;
+            grid-row: 1 / 2;
+            border-top: 3px solid var(--wbc-red);
+        }
+
+        .lineup-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between; /* 平均撐開 */
+            padding: 8px;
+            gap: 4px;
+        }
+
+        .lineup-slot {
+            flex: 1;
+            background: var(--slot-bg);
+            border: 1px dashed #666;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            padding: 0 8px;
+            transition: 0.2s;
+            min-height: 0; /* 防止被內容撐爆 */
+        }
+        .lineup-slot.drag-over { background: rgba(186, 0, 33, 0.3); border-color: var(--wbc-red); }
+
+        .order-num {
+            font-family: 'Roboto Mono';
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: rgba(255,255,255,0.4);
+            width: 20px;
+            text-align: center;
+            margin-right: 8px;
+        }
+
+        .slot-content {
+            flex: 1;
+            overflow: hidden;
+        }
+        .slot-name { 
+            font-size: 1.2rem; 
+            color: var(--wbc-gold); 
+            white-space: nowrap; 
+            overflow: hidden; 
+            text-overflow: ellipsis; 
+            line-height: 1;
+        }
+        .placeholder { color: #555; font-size: 0.8rem; letter-spacing: 1px; }
+
+        .pos-select {
+            background: #111;
+            color: var(--wbc-teal);
+            border: 1px solid #444;
+            border-radius: 3px;
+            padding: 0 2px;
+            font-family: 'Roboto Mono';
+            font-weight: bold;
+            font-size: 0.8rem;
+            margin-left: 5px;
+            cursor: pointer;
+            height: 24px;
+        }
+
+        .btn-reset {
+            background: transparent; border: 1px solid var(--wbc-red); color: var(--wbc-red);
+            font-size: 0.7rem; padding: 2px 6px; border-radius: 3px; cursor: pointer; transition:0.2s;
+        }
+        .btn-reset:hover { background: var(--wbc-red); color: white; }
+
+        /* --- 右上：資訊區 --- */
+        .info-panel {
+            grid-column: 2 / 3;
+            grid-row: 1 / 2;
+            background: transparent;
+            border: none;
+            box-shadow: none;
+            backdrop-filter: none;
+            display: grid;
+            grid-template-columns: 1fr 260px;
+            gap: 10px;
+            overflow: hidden; /* 重要：防止撐開 */
+        }
+
+        .countdown-box {
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-top: 3px solid var(--wbc-teal);
+            border-radius: 10px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+        }
+        .wbc-logo-ring { width: 40px; height: 40px; border-radius: 50%; background: conic-gradient(var(--wbc-red) 0deg 90deg, var(--wbc-blue) 90deg 180deg, var(--wbc-teal) 180deg 270deg, var(--wbc-gold) 270deg 360deg); margin-bottom: 10px; position: relative; }
+        .wbc-logo-ring::after { content: ''; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 28px; height: 28px; background: #0d1e35; border-radius: 50%; }
+        
+        #total-seconds { font-family: 'Roboto Mono'; font-size: 4.5rem; font-weight: 700; line-height: 0.9; text-shadow: 0 0 20px rgba(0, 163, 161, 0.6); }
+        .timer-label { font-size: 1rem; color: #aaa; letter-spacing: 2px; margin-top: 5px; text-transform: uppercase; }
+
+        .schedule-box {
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-top: 3px solid var(--wbc-gold);
+            border-radius: 10px;
+            padding: 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            overflow-y: auto;
+        }
+        .schedule-item { border-bottom: 1px dashed rgba(255,255,255,0.1); padding-bottom: 4px; margin-bottom: 2px; font-size: 0.9rem;}
+        .sch-date { color: var(--wbc-red); font-family: 'Roboto Mono'; font-weight: bold; font-size: 0.85rem; margin-right: 5px;}
+        .sch-vs { color: #ccc; }
+        .sch-timer { font-family: 'Roboto Mono'; font-size: 0.75rem; color: var(--wbc-teal); float: right; }
+
+        /* --- 下方：名單池 (Grid System) --- */
+        .roster-panel {
+            grid-column: 1 / 3;
+            grid-row: 2 / 3;
+            border-top: 3px solid var(--wbc-blue);
+        }
+
+        .roster-grid {
+            display: grid;
+            grid-template-columns: 0.8fr 1.5fr 1fr; /* 捕手窄一點，內野寬一點 */
+            height: 100%;
+            overflow: hidden;
+        }
+
+        .roster-col {
+            padding: 8px;
+            border-right: 1px solid rgba(255,255,255,0.1);
+            display: flex;
+            flex-direction: column;
+        }
+        .roster-col:last-child { border-right: none; }
+
+        .col-title {
+            font-size: 0.8rem; color: #888; margin-bottom: 6px; border-left: 2px solid var(--wbc-teal); padding-left: 5px; text-transform: uppercase;
+        }
+
+        .card-container {
+            display: grid;
+            /* 自動填滿，最小寬度 85px，防止太擠 */
+            grid-template-columns: repeat(auto-fill, minmax(85px, 1fr));
+            gap: 6px;
+            overflow-y: auto; /* 如果真的太多，內部微捲動，不影響整頁 */
+            padding-right: 2px;
+        }
+        /* 隱藏捲軸但保留功能 */
+        .card-container::-webkit-scrollbar { width: 0px; }
+
+        /* 選手卡片設計 */
+        .chip {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255,255,255,0.15);
+            border-radius: 4px;
+            height: 32px; /* 固定高度，很扁 */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: grab;
+            user-select: none;
+            transition: 0.2s;
+        }
+        .chip:hover { background: rgba(255,255,255,0.25); border-color: var(--wbc-light-blue); }
+        .chip:active { cursor: grabbing; }
+
+        .chip-name {
+            font-size: 0.9rem; /* 字體縮小 */
+            color: white;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis; /* 太長自動變... */
+            padding: 0 4px;
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="dashboard-grid">
+        
+        <aside class="panel lineup-panel">
+            <h3>
+                LINEUP CARD
+                <button class="btn-reset" onclick="resetLineup()">CLEAR</button>
+            </h3>
+            <div class="lineup-container">
+                <script>
+                    for(let i=1; i<=9; i++) {
+                        document.write(`
+                            <div class="lineup-slot" ondrop="drop(event)" ondragover="allowDrop(event)">
+                                <span class="order-num">${i}</span>
+                                <div class="slot-content"><span class="placeholder">DROP</span></div>
+                                <select class="pos-select">
+                                    <option value="DH">DH</option>
+                                    <option value="C">C</option>
+                                    <option value="1B">1B</option>
+                                    <option value="2B">2B</option>
+                                    <option value="3B">3B</option>
+                                    <option value="SS">SS</option>
+                                    <option value="LF">LF</option>
+                                    <option value="CF">CF</option>
+                                    <option value="RF">RF</option>
+                                </select>
+                            </div>
+                        `);
+                    }
+                </script>
+            </div>
+        </aside>
+
+        <main class="info-panel">
+            <div class="countdown-box">
+                <div class="wbc-logo-ring"></div>
+                <h1 style="margin:0; font-size:1.5rem; letter-spacing:2px; color:#ddd;">WBC 2026</h1>
+                <span id="total-seconds">0</span>
+                <span class="timer-label">Seconds To First Pitch</span>
+            </div>
+
+            <div class="schedule-box">
+                <div class="schedule-item">
+                    <span class="sch-date">2/06</span> <span class="sch-vs">Roster Announcement</span>
+                    <span class="sch-timer" id="timer-roster">...</span>
+                </div>
+                <div class="schedule-item">
+                    <span class="sch-date">2/26</span> <span class="sch-vs">vs Hawks (TPE)</span>
+                    <span class="sch-timer" id="timer-game1">...</span>
+                </div>
+                <div class="schedule-item">
+                    <span class="sch-date">2/27</span> <span class="sch-vs">vs Fighters (TPE)</span>
+                    <span class="sch-timer" id="timer-game2">...</span>
+                </div>
+                <div class="schedule-item">
+                    <span class="sch-date">3/02</span> <span class="sch-vs">vs Buffaloes (JPN)</span>
+                    <span class="sch-timer" id="timer-game3">...</span>
+                </div>
+                <div class="schedule-item">
+                    <span class="sch-date">3/03</span> <span class="sch-vs">vs Hawks (JPN)</span>
+                    <span class="sch-timer" id="timer-game4">...</span>
+                </div>
+            </div>
+        </main>
+
+        <aside class="panel roster-panel">
+            <h3>ROSTER POOL</h3>
+            <div class="roster-grid">
+                
+                <div class="roster-col">
+                    <div class="col-title">CATCHERS</div>
+                    <div class="card-container">
+                        <div class="chip" draggable="true" ondragstart="drag(event)" data-name="林家正"><span class="chip-name">林家正</span></div>
+                        <div class="chip" draggable="true" ondragstart="drag(event)" data-name="吉力吉撈"><span class="chip-name">吉力吉撈</span></div>
+                        <div class="chip" draggable="true" ondragstart="drag(event)" data-name="蔣少宏"><span class="chip-name">蔣少宏</span></div>
+                        <div class="chip" draggable="true" ondragstart="drag(event)" data-name="戴培峰"><span class="chip-name">戴培峰</span></div>
+                    </div>
+                </div>
+
+                <div class="roster-col">
+                    <div class="col-title">INFIELDERS</div>
+                    <div class="card-container">
+                        <div class="chip" draggable="true" ondragstart="drag(event)" data-name="J. Long"><span class="chip-name">J. Long</span></div>
+                        <div class="chip" draggable="true" ondragstart="drag(event)" data-name="張育成"><span class="chip-name">張育成</span></div>
+                        <div class="chip" draggable="true" ondragstart="drag(event)" data-name="江坤宇"><span class="chip-name">江坤宇</span></div>
+                        <div class="chip" draggable="true" ondragstart="drag(event)" data-name="李灝宇"><span class="chip-name">李灝宇</span></div>
+                        <div class="chip" draggable="true" ondragstart="drag(event)" data-name="鄭宗哲"><span class="chip-name">鄭宗哲</span></div>
+                        <div class="chip" draggable="true" ondragstart="drag(event)" data-name="吳念庭"><span class="chip-name">吳念庭</span></div>
+                        <div class="chip" draggable="true" ondragstart="drag(event)" data-name="張政禹"><span class="chip-name">張政禹</span></div>
+                        <div class="chip" draggable="true" ondragstart="drag(event)" data-name="林子偉"><span class="chip-name">林子偉</span></div>
+                    </div>
+                </div>
+
+                <div class="roster-col">
+                    <div class="col-title">OUTFIELDERS</div>
+                    <div class="card-container">
+                        <div class="chip" draggable="true" ondragstart="drag(event)" data-name="陳傑憲"><span class="chip-name">陳傑憲</span></div>
+                        <div class="chip" draggable="true" ondragstart="drag(event)" data-name="S. Fairchild"><span class="chip-name">S. Fairchild</span></div>
+                        <div class="chip" draggable="true" ondragstart="drag(event)" data-name="陳晨威"><span class="chip-name">陳晨威</span></div>
+                        <div class="chip" draggable="true" ondragstart="drag(event)" data-name="林安可"><span class="chip-name">林安可</span></div>
+                        <div class="chip" draggable="true" ondragstart="drag(event)" data-name="宋晟睿"><span class="chip-name">宋晟睿</span></div>
+                        <div class="chip" draggable="true" ondragstart="drag(event)" data-name="邱智呈"><span class="chip-name">邱智呈</span></div>
+                    </div>
+                </div>
+
+            </div>
+        </aside>
+
+    </div>
+
+    <script>
+        const targetDate = new Date("2026-03-05T11:00:00").getTime(); 
+        const sideEvents = [
+            { id: "timer-roster", time: "2026-02-06T08:00:00" },
+            { id: "timer-game1",  time: "2026-02-26T17:00:00" },
+            { id: "timer-game2",  time: "2026-02-27T17:00:00" },
+            { id: "timer-game3",  time: "2026-03-02T13:00:00" },
+            { id: "timer-game4",  time: "2026-03-03T13:00:00" }
+        ];
+
+        function updateAll() {
+            const now = new Date().getTime();
+            const distance = targetDate - now;
+            document.getElementById("total-seconds").innerText = distance < 0 ? "PLAY BALL" : Math.floor(distance / 1000).toLocaleString();
+            sideEvents.forEach(event => {
+                const dist = new Date(event.time).getTime() - now;
+                const el = document.getElementById(event.id);
+                if (dist < 0) el.innerText = "DONE";
+                else {
+                    const d = Math.floor(dist / (1000 * 60 * 60 * 24));
+                    const h = Math.floor((dist % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                    el.innerText = `${d}d ${h}h`;
+                }
+            });
+        }
+        setInterval(updateAll, 1000);
+        updateAll();
+
+        function allowDrop(ev) { ev.preventDefault(); ev.currentTarget.classList.add('drag-over'); }
+        document.addEventListener("dragleave", function(event) { if (event.target.classList && event.target.classList.contains("lineup-slot")) { event.target.classList.remove("drag-over"); }});
+        function drag(ev) { ev.dataTransfer.setData("name", ev.target.getAttribute("data-name")); }
+        function drop(ev) {
+            ev.preventDefault();
+            let targetSlot = ev.target;
+            while (!targetSlot.classList.contains('lineup-slot')) targetSlot = targetSlot.parentElement;
+            targetSlot.classList.remove('drag-over');
+            const name = ev.dataTransfer.getData("name");
+            targetSlot.querySelector('.slot-content').innerHTML = `<span class="slot-name">${name}</span>`;
+        }
+        function resetLineup() {
+            document.querySelectorAll('.slot-content').forEach(div => div.innerHTML = '<span class="placeholder">DROP</span>');
+            document.querySelectorAll('.pos-select').forEach(sel => sel.selectedIndex = 0);
+        }
+    </script>
+</body>
+</html>
