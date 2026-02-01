@@ -2,479 +2,348 @@
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>WBC 2026 Manager Dashboard</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>WBC 東京戰術儀表板 V6</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Teko:wght@300;400;600;700&family=Roboto+Mono:wght@400;700&display=swap');
-
         :root {
-            --wbc-blue: #002D62;
-            --wbc-light-blue: #0077c8;
-            --wbc-red: #BA0021;
-            --wbc-gold: #C49102;
-            --wbc-teal: #00A3A1;
-            --text-white: #ffffff;
-            --glass-bg: rgba(0, 30, 60, 0.85);
-            --glass-border: rgba(255, 255, 255, 0.2);
-            --slot-bg: rgba(0, 0, 0, 0.5);
+            --bg-gradient: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%);
+            --glass-bg: rgba(30, 41, 59, 0.7);
+            --glass-border: rgba(255, 255, 255, 0.1);
+            --primary: #3b82f6;
+            --accent: #f43f5e;
+            --traffic: #94a3b8;
+            --flight: #eab308;
+            --text-main: #ffffff;
         }
+
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 
         body {
+            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Roboto, sans-serif;
+            background: var(--bg-gradient);
+            color: var(--text-main);
             margin: 0;
             padding: 0;
-            background: radial-gradient(circle at 60% 30%, #1e4b85 0%, #061121 80%);
-            color: var(--text-white);
-            font-family: 'Teko', sans-serif;
-            height: 100vh;
-            width: 100vw;
-            overflow: hidden;
-            display: flex;
-            justify-content: center;
-            align-items: center;
+            min-height: 100vh;
+            padding-bottom: 100px;
         }
 
-        /* --- 網格佈局 --- */
-        .dashboard-grid {
-            display: grid;
-            grid-template-columns: 350px 1fr 320px; 
-            grid-template-rows: 1fr 180px; 
-            gap: 10px;
-            width: 98%;
-            height: 98vh;
-            padding: 10px;
-            box-sizing: border-box;
-        }
-
-        /* --- 通用面板 --- */
-        .panel {
-            background: var(--glass-bg);
-            backdrop-filter: blur(10px);
-            border: 1px solid var(--glass-border);
-            border-radius: 10px;
-            overflow: hidden;
-            display: flex;
-            flex-direction: column;
-            box-shadow: 0 8px 32px rgba(0,0,0,0.6);
-        }
-
-        h3 {
-            font-size: 1rem;
-            color: var(--wbc-gold);
-            margin: 0;
-            padding: 6px 10px;
-            background: rgba(0,0,0,0.4);
+        /* --- Header --- */
+        .hud-header {
+            position: sticky; top: 0; z-index: 100;
+            background: rgba(15, 23, 42, 0.95);
+            backdrop-filter: blur(12px);
+            padding: 10px 20px;
             border-bottom: 1px solid var(--glass-border);
-            letter-spacing: 1px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+            display: flex; justify-content: space-between; align-items: center;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+        }
+        .mission-title h1 { margin: 0; font-size: 16px; font-weight: 800; letter-spacing: 1px; }
+        .mission-title span { font-size: 10px; color: var(--primary); font-weight: 600; display: block; }
+        .clocks { text-align: right; font-family: monospace; font-weight: bold; font-size: 12px; }
+        .clock-time { color: var(--primary); } .clock-time.jp { color: var(--accent); }
+
+        /* --- Converter --- */
+        .converter-container { padding: 15px 20px 0 20px; }
+        .converter-card {
+            background: var(--glass-bg); border: 1px solid var(--glass-border);
+            border-radius: 12px; padding: 10px; display: flex; align-items: center; gap: 10px;
+        }
+        .currency-input {
+            background: rgba(0,0,0,0.3); border: 1px solid var(--glass-border);
+            color: white; padding: 5px; border-radius: 6px; font-size: 14px; width: 100%; font-family: monospace; text-align: center;
         }
 
-        /* --- 左側：打序 --- */
-        .lineup-panel {
-            grid-column: 1 / 2;
-            grid-row: 1 / 2;
-            border-top: 3px solid var(--wbc-red);
+        /* --- Tabs --- */
+        .tabs-wrapper { overflow-x: auto; white-space: nowrap; padding: 15px 20px 10px 20px; scrollbar-width: none; }
+        .tabs-wrapper::-webkit-scrollbar { display: none; }
+        .tab {
+            display: inline-block; padding: 8px 16px; margin-right: 8px;
+            background: rgba(255,255,255,0.05); border-radius: 8px; font-size: 14px;
+            color: var(--traffic); border: 1px solid transparent; font-weight: 500; transition: all 0.2s;
         }
+        .tab.active { background: var(--primary); color: white; box-shadow: 0 2px 10px rgba(59, 130, 246, 0.4); }
 
-        .lineup-container {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            padding: 8px;
-            gap: 4px;
+        /* --- Content Layout --- */
+        .content-area { padding: 10px 20px; }
+        .day-container { display: none; animation: slideUp 0.3s ease; }
+        .day-container.active { display: block; }
+
+        /* Card Design (Updated for Horizontal Layout) */
+        .card {
+            background: var(--glass-bg); border: 1px solid var(--glass-border);
+            border-radius: 12px; padding: 15px; position: relative;
+            display: flex; justify-content: space-between; align-items: center;
         }
-
-        .lineup-slot {
-            flex: 1;
-            background: var(--slot-bg);
-            border: 1px dashed #666;
-            border-radius: 4px;
-            display: flex;
-            align-items: center;
-            padding: 0 8px;
-            transition: 0.2s;
-            min-height: 0;
-        }
-        .lineup-slot.drag-over { background: rgba(186, 0, 33, 0.3); border-color: var(--wbc-red); }
-
-        .order-num {
-            font-family: 'Roboto Mono';
-            font-size: 1.1rem;
-            font-weight: 700;
-            color: rgba(255,255,255,0.4);
-            width: 20px;
-            text-align: center;
-            margin-right: 8px;
-        }
-
-        .slot-content { flex: 1; overflow: hidden; }
-        .slot-name { font-size: 1.2rem; color: var(--wbc-gold); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; line-height: 1; }
-        .placeholder { color: #555; font-size: 0.8rem; letter-spacing: 1px; }
-
-        .pos-select {
-            background: #111; color: var(--wbc-teal); border: 1px solid #444; border-radius: 3px;
-            padding: 0 2px; font-family: 'Roboto Mono'; font-weight: bold; font-size: 0.8rem; margin-left: 5px; cursor: pointer; height: 24px;
-        }
-
-        .btn-reset {
-            background: transparent; border: 1px solid var(--wbc-red); color: var(--wbc-red);
-            font-size: 0.7rem; padding: 2px 6px; border-radius: 3px; cursor: pointer; transition:0.2s;
-        }
-        .btn-reset:hover { background: var(--wbc-red); color: white; }
-
-        /* --- 中間：大倒數區 --- */
-        .countdown-panel {
-            grid-column: 2 / 3;
-            grid-row: 1 / 2;
-            background: transparent;
-            border: none;
-            box-shadow: none;
-            backdrop-filter: none;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-        }
-
-        .countdown-box {
-            background: var(--glass-bg);
-            border: 1px solid var(--glass-border);
-            border-top: 3px solid var(--wbc-teal);
-            border-radius: 10px;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            text-align: center;
-            padding: 20px;
-            width: 100%;
-            height: 100%;
-            position: relative;
-        }
-        .wbc-logo-ring { width: 50px; height: 50px; border-radius: 50%; background: conic-gradient(var(--wbc-red) 0deg 90deg, var(--wbc-blue) 90deg 180deg, var(--wbc-teal) 180deg 270deg, var(--wbc-gold) 270deg 360deg); margin-bottom: 10px; position: relative; }
-        .wbc-logo-ring::after { content: ''; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 36px; height: 36px; background: #0d1e35; border-radius: 50%; }
         
-        #total-seconds { font-family: 'Roboto Mono'; font-size: 5rem; font-weight: 700; line-height: 1; text-shadow: 0 0 30px rgba(0, 163, 161, 0.6); margin-bottom: 5px; }
-        .timer-label { font-size: 1.2rem; color: #888; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 20px; }
-
-        /* 詳細倒數 */
-        .detail-timer {
-            display: flex;
-            gap: 25px;
-            padding: 10px 30px;
-            background: rgba(0,0,0,0.3);
-            border-radius: 8px;
-            border: 1px solid rgba(255,255,255,0.05);
-            margin-bottom: 30px;
-        }
-        .dt-item { display: flex; flex-direction: column; align-items: center; min-width: 50px; }
-        .dt-val { font-family: 'Roboto Mono'; font-size: 2rem; font-weight: bold; color: white; line-height: 1;}
-        .dt-lbl { font-size: 0.8rem; color: var(--wbc-light-blue); margin-top: 5px; }
-
-        /* [NEW] 進度條區域 */
-        .progress-container {
-            width: 80%;
-            max-width: 500px;
-            margin-top: 10px;
-        }
-        .progress-labels {
-            display: flex;
-            justify-content: space-between;
-            font-size: 0.9rem;
-            color: var(--wbc-gold);
-            margin-bottom: 5px;
-            text-transform: uppercase;
-        }
-        .bar-bg {
-            width: 100%;
-            height: 8px;
-            background: #222;
-            border-radius: 4px;
-            overflow: hidden;
-            box-shadow: inset 0 1px 3px rgba(0,0,0,0.8);
-        }
-        .bar-fill {
-            height: 100%;
-            width: 0%;
-            background: linear-gradient(90deg, var(--wbc-red), var(--wbc-gold));
-            box-shadow: 0 0 10px rgba(186, 0, 33, 0.7);
-        }
-        .percentage-text {
-            font-family: 'Roboto Mono';
-            font-size: 1.2rem;
-            color: white;
-            text-align: right;
-            margin-top: 5px;
-            font-weight: bold;
+        /* Flex Row for Time + Title */
+        .event-info { 
+            display: flex; 
+            flex-direction: row; /* 水平排列 */
+            align-items: center; /* 垂直置中 */
+            gap: 12px; /* 時間與地點的間距 */
         }
 
-
-        /* --- 右側：賽程 --- */
-        .schedule-panel {
-            grid-column: 3 / 4;
-            grid-row: 1 / 2;
-            border-top: 3px solid var(--wbc-gold);
+        .time-box { 
+            font-family: monospace; font-size: 14px; font-weight: bold; 
+            padding: 4px 8px; border-radius: 6px; background: rgba(0,0,0,0.4); 
+            flex-shrink: 0; /* 防止時間被擠壓 */
         }
-        .schedule-container { padding: 10px; display: flex; flex-direction: column; gap: 12px; overflow-y: auto; flex: 1; }
-        .schedule-item { border-bottom: 1px dashed rgba(255,255,255,0.1); padding-bottom: 8px; margin-bottom: 2px; display: flex; flex-direction: column; }
-        .sch-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; }
-        .sch-date { color: var(--wbc-red); font-family: 'Roboto Mono'; font-weight: bold; font-size: 0.9rem; }
-        .sch-vs { color: #eee; font-size: 0.95rem; }
-        .sch-timer { font-family: 'Roboto Mono'; font-size: 0.9rem; color: var(--wbc-teal); text-align: right; background: rgba(0,0,0,0.3); padding: 2px 6px; border-radius: 4px; align-self: flex-end; }
 
+        .event-title { font-size: 16px; font-weight: 600; }
 
-        /* --- 下方：名單池 --- */
-        .roster-panel {
-            grid-column: 1 / 4;
-            grid-row: 2 / 3;
-            border-top: 3px solid var(--wbc-blue);
+        /* Map Button */
+        .btn-map {
+            width: 32px; height: 32px; border-radius: 50%;
+            background: rgba(59, 130, 246, 0.15); color: #60a5fa;
+            display: flex; align-items: center; justify-content: center;
+            text-decoration: none; border: 1px solid rgba(59, 130, 246, 0.3); font-size: 14px;
+            flex-shrink: 0;
         }
-        .roster-grid { display: grid; grid-template-columns: 0.8fr 1.5fr 1fr; height: 100%; overflow: hidden; }
-        .roster-col { padding: 8px; border-right: 1px solid rgba(255,255,255,0.1); display: flex; flex-direction: column; }
-        .roster-col:last-child { border-right: none; }
-        .col-title { font-size: 0.8rem; color: #888; margin-bottom: 6px; border-left: 2px solid var(--wbc-teal); padding-left: 5px; text-transform: uppercase; }
-        .card-container { display: grid; grid-template-columns: repeat(auto-fill, minmax(85px, 1fr)); gap: 6px; overflow-y: auto; padding-right: 2px; }
-        .card-container::-webkit-scrollbar { width: 0px; }
-        .chip { background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255,255,255,0.15); border-radius: 4px; height: 32px; display: flex; align-items: center; justify-content: center; cursor: grab; user-select: none; transition: 0.2s; }
-        .chip:hover { background: rgba(255,255,255,0.25); border-color: var(--wbc-light-blue); }
-        .chip:active { cursor: grabbing; }
-        .chip-name { font-size: 0.9rem; color: white; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding: 0 4px; }
 
+        /* Traffic Node */
+        .traffic-node {
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            padding: 8px 0; position: relative; color: var(--traffic); font-size: 11px;
+        }
+        .traffic-node::before, .traffic-node::after {
+            content: ''; width: 2px; height: 10px; background: rgba(255,255,255,0.1); display: block;
+        }
+        .traffic-pill {
+            background: rgba(0,0,0,0.5); padding: 2px 10px; border-radius: 20px;
+            border: 1px solid rgba(255,255,255,0.1); display: flex; align-items: center; gap: 6px;
+        }
+
+        /* Flight Card */
+        .flight-card {
+            background: linear-gradient(90deg, rgba(234, 179, 8, 0.1), rgba(30, 41, 59, 0.7));
+            border-left: 3px solid var(--flight); border-radius: 12px; padding: 15px; margin: 5px 0;
+        }
+        .flight-row { display: flex; justify-content: space-between; align-items: center; }
+        .flight-code { font-family: monospace; font-weight: bold; color: var(--flight); font-size: 16px; }
+        .flight-route { display: flex; justify-content: space-between; margin-top: 10px; font-size: 14px; font-weight: bold; }
+        .flight-sub { font-size: 11px; color: var(--traffic); margin-top: 5px; display: flex; justify-content: space-between; }
+
+        /* Colors */
+        .move .time-box { color: #60a5fa; border-left: 3px solid #60a5fa; }
+        .game .time-box { color: #f43f5e; border-left: 3px solid #f43f5e; }
+        .food .time-box { color: #34d399; border-left: 3px solid #34d399; }
+        .shop .time-box { color: #fbbf24; border-left: 3px solid #fbbf24; }
+
+        .fab {
+            position: fixed; bottom: 30px; right: 20px; width: 50px; height: 50px;
+            background: var(--primary); border-radius: 50%; box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+            display: flex; align-items: center; justify-content: center; color: white; font-size: 24px; border: none; z-index: 200;
+        }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
 <body>
 
-    <div class="dashboard-grid">
+<header class="hud-header">
+    <div class="mission-title"><span>MISSION 2026</span><h1>WBC TOKYO</h1></div>
+    <div class="clocks">
+        <div>TW <span class="clock-time" id="clock-tw"></span></div>
+        <div>JP <span class="clock-time jp" id="clock-jp"></span></div>
+    </div>
+</header>
+
+<div class="converter-container">
+    <div class="converter-card">
+        <input type="number" id="jpy-input" class="currency-input" placeholder="JPY ¥" oninput="convert()">
+        <span style="color:#aaa">=</span>
+        <input type="text" id="twd-output" class="currency-input" readonly placeholder="TWD $">
+    </div>
+</div>
+
+<div class="tabs-wrapper">
+    <div class="tab active" onclick="setDay('d1', this)">3/4 D1</div>
+    <div class="tab" onclick="setDay('d2', this)">3/5 D2</div>
+    <div class="tab" onclick="setDay('d3', this)">3/6 D3</div>
+    <div class="tab" onclick="setDay('d4', this)">3/7 D4</div>
+    <div class="tab" onclick="setDay('d5', this)">3/8 D5</div>
+    <div class="tab" onclick="setDay('d6', this)">3/9 D6</div>
+</div>
+
+<div class="content-area">
+
+    <div id="d1" class="day-container active">
+        <div class="card move">
+            <div class="event-info"><div class="time-box">09:50</div><div class="event-title">嘉義自宅</div></div>
+        </div>
         
-        <aside class="panel lineup-panel">
-            <h3>
-                LINEUP CARD
-                <button class="btn-reset" onclick="resetLineup()">CLEAR</button>
-            </h3>
-            <div class="lineup-container">
-                <script>
-                    for(let i=1; i<=9; i++) {
-                        document.write(`
-                            <div class="lineup-slot" ondrop="drop(event)" ondragover="allowDrop(event)">
-                                <span class="order-num">${i}</span>
-                                <div class="slot-content"><span class="placeholder">DROP</span></div>
-                                <select class="pos-select">
-                                    <option value="DH">DH</option>
-                                    <option value="C">C</option>
-                                    <option value="1B">1B</option>
-                                    <option value="2B">2B</option>
-                                    <option value="3B">3B</option>
-                                    <option value="SS">SS</option>
-                                    <option value="LF">LF</option>
-                                    <option value="CF">CF</option>
-                                    <option value="RF">RF</option>
-                                </select>
-                            </div>
-                        `);
-                    }
-                </script>
-            </div>
-        </aside>
+        <div class="traffic-node"><div class="traffic-pill">🚕 計程車 (20分)</div></div>
+        
+        <div class="card move">
+            <div class="event-info"><div class="time-box">10:49</div><div class="event-title">高鐵嘉義站</div></div>
+        </div>
 
-        <main class="countdown-panel">
-            <div class="countdown-box">
-                <div class="wbc-logo-ring"></div>
-                <h1 style="margin:0; font-size:2rem; letter-spacing:3px; color:#ddd;">2026 World Baseball Classic</h1>
-                
-                <span id="total-seconds">0</span>
-                <span class="timer-label">Sec</span>
+        <div class="traffic-node"><div class="traffic-pill">🚄 高鐵 622 + 機捷</div></div>
 
-                <div class="detail-timer">
-                    <div class="dt-item">
-                        <span class="dt-val" id="d-val">0</span>
-                        <span class="dt-lbl">DAYS</span>
-                    </div>
-                    <div class="dt-item">
-                        <span class="dt-val" id="h-val">00</span>
-                        <span class="dt-lbl">HRS</span>
-                    </div>
-                    <div class="dt-item">
-                        <span class="dt-val" id="m-val">00</span>
-                        <span class="dt-lbl">MIN</span>
-                    </div>
-                    <div class="dt-item">
-                        <span class="dt-val" id="s-val">00</span>
-                        <span class="dt-lbl">SEC</span>
-                    </div>
-                </div>
+        <div class="card move">
+            <div class="event-info"><div class="time-box">13:00</div><div class="event-title">桃園機場 T1</div></div>
+        </div>
 
-                <div class="progress-container">
-                    <div class="progress-labels">
-                        <span>Since '23 Final</span>
-                        <span>Road to Tokyo</span>
-                    </div>
-                    <div class="bar-bg">
-                        <div class="bar-fill" id="progress-bar"></div>
-                    </div>
-                    <div class="percentage-text" id="percentage">0.0000000%</div>
-                </div>
+        <div class="traffic-node"><div class="traffic-pill">🛫 飛行 3小時</div></div>
 
-            </div>
-        </main>
+        <div class="flight-card">
+            <div class="flight-row"><span class="flight-code">JX 804</span><span>星宇</span></div>
+            <div class="flight-route"><span>TPE 15:00</span><span>NRT 19:00</span></div>
+            <div class="flight-sub"><span>Terminal 1</span><span>Terminal 2</span></div>
+        </div>
 
-        <aside class="panel schedule-panel">
-            <h3>UPCOMING SCHEDULE</h3>
-            <div class="schedule-container">
-                <div class="schedule-item">
-                    <div class="sch-header">
-                        <span class="sch-date">2/06</span> <span class="sch-vs">Roster Announce</span>
-                    </div>
-                    <div class="sch-timer" id="timer-roster">...</div>
-                </div>
-                <div class="schedule-item">
-                    <div class="sch-header">
-                        <span class="sch-date">2/26</span> <span class="sch-vs">vs Hawks (TPE)</span>
-                    </div>
-                    <div class="sch-timer" id="timer-game1">...</div>
-                </div>
-                <div class="schedule-item">
-                    <div class="sch-header">
-                        <span class="sch-date">2/27</span> <span class="sch-vs">vs Fighters (TPE)</span>
-                    </div>
-                    <div class="sch-timer" id="timer-game2">...</div>
-                </div>
-                <div class="schedule-item">
-                    <div class="sch-header">
-                        <span class="sch-date">3/02</span> <span class="sch-vs">vs Buffaloes (JPN)</span>
-                    </div>
-                    <div class="sch-timer" id="timer-game3">...</div>
-                </div>
-                <div class="schedule-item">
-                    <div class="sch-header">
-                        <span class="sch-date">3/03</span> <span class="sch-vs">vs Hawks (JPN)</span>
-                    </div>
-                    <div class="sch-timer" id="timer-game4">...</div>
-                </div>
-            </div>
-        </aside>
+        <div class="traffic-node"><div class="traffic-pill">🚃 Access 特急 + 轉乘</div></div>
 
-        <aside class="panel roster-panel">
-            <h3>ROSTER POOL</h3>
-            <div class="roster-grid">
-                
-                <div class="roster-col">
-                    <div class="col-title">CATCHERS</div>
-                    <div class="card-container">
-                        <div class="chip" draggable="true" ondragstart="drag(event)" data-name="林家正"><span class="chip-name">林家正</span></div>
-                        <div class="chip" draggable="true" ondragstart="drag(event)" data-name="吉力吉撈"><span class="chip-name">吉力吉撈</span></div>
-                        <div class="chip" draggable="true" ondragstart="drag(event)" data-name="蔣少宏"><span class="chip-name">蔣少宏</span></div>
-                        <div class="chip" draggable="true" ondragstart="drag(event)" data-name="戴培峰"><span class="chip-name">戴培峰</span></div>
-                    </div>
-                </div>
+        <div class="card move">
+            <div class="event-info"><div class="time-box">20:00</div><div class="event-title">La Vista (豐洲)</div></div>
+            <a href="https://www.google.com/maps/search/?api=1&query=La+Vista+Tokyo+Bay" class="btn-map">📍</a>
+        </div>
 
-                <div class="roster-col">
-                    <div class="col-title">INFIELDERS</div>
-                    <div class="card-container">
-                        <div class="chip" draggable="true" ondragstart="drag(event)" data-name="J. Long"><span class="chip-name">J. Long</span></div>
-                        <div class="chip" draggable="true" ondragstart="drag(event)" data-name="張育成"><span class="chip-name">張育成</span></div>
-                        <div class="chip" draggable="true" ondragstart="drag(event)" data-name="江坤宇"><span class="chip-name">江坤宇</span></div>
-                        <div class="chip" draggable="true" ondragstart="drag(event)" data-name="李灝宇"><span class="chip-name">李灝宇</span></div>
-                        <div class="chip" draggable="true" ondragstart="drag(event)" data-name="鄭宗哲"><span class="chip-name">鄭宗哲</span></div>
-                        <div class="chip" draggable="true" ondragstart="drag(event)" data-name="吳念庭"><span class="chip-name">吳念庭</span></div>
-                        <div class="chip" draggable="true" ondragstart="drag(event)" data-name="張政禹"><span class="chip-name">張政禹</span></div>
-                        <div class="chip" draggable="true" ondragstart="drag(event)" data-name="林子偉"><span class="chip-name">林子偉</span></div>
-                    </div>
-                </div>
+        <div class="traffic-node"><div class="traffic-pill">🚶 步行</div></div>
 
-                <div class="roster-col">
-                    <div class="col-title">OUTFIELDERS</div>
-                    <div class="card-container">
-                        <div class="chip" draggable="true" ondragstart="drag(event)" data-name="陳傑憲"><span class="chip-name">陳傑憲</span></div>
-                        <div class="chip" draggable="true" ondragstart="drag(event)" data-name="S. Fairchild"><span class="chip-name">S. Fairchild</span></div>
-                        <div class="chip" draggable="true" ondragstart="drag(event)" data-name="陳晨威"><span class="chip-name">陳晨威</span></div>
-                        <div class="chip" draggable="true" ondragstart="drag(event)" data-name="林安可"><span class="chip-name">林安可</span></div>
-                        <div class="chip" draggable="true" ondragstart="drag(event)" data-name="宋晟睿"><span class="chip-name">宋晟睿</span></div>
-                        <div class="chip" draggable="true" ondragstart="drag(event)" data-name="邱智呈"><span class="chip-name">邱智呈</span></div>
-                    </div>
-                </div>
-
-            </div>
-        </aside>
-
+        <div class="card food">
+            <div class="event-info"><div class="time-box">22:00</div><div class="event-title">薩利亞 / 拉麵</div></div>
+            <a href="https://www.google.com/maps/search/?api=1&query=Saizeriya+Toyosu+Front" class="btn-map">📍</a>
+        </div>
     </div>
 
-    <script>
-        // 設定起點 (2023冠軍賽) 與 終點 (2026首戰)
-        const startDate = new Date("2023-03-22T11:00:00").getTime();
-        const targetDate = new Date("2026-03-05T11:00:00").getTime(); 
-        const totalDuration = targetDate - startDate;
+    <div id="d2" class="day-container">
+        <div class="card move">
+            <div class="event-info"><div class="time-box">09:00</div><div class="event-title">飯店早餐</div></div>
+        </div>
 
-        const sideEvents = [
-            { id: "timer-roster", time: "2026-02-06T08:00:00" },
-            { id: "timer-game1",  time: "2026-02-26T17:00:00" },
-            { id: "timer-game2",  time: "2026-02-27T17:00:00" },
-            { id: "timer-game3",  time: "2026-03-02T13:00:00" },
-            { id: "timer-game4",  time: "2026-03-03T13:00:00" }
-        ];
+        <div class="traffic-node"><div class="traffic-pill">🚃 海鷗號 + 地鐵</div></div>
 
-        function updateAll() {
-            const now = new Date().getTime();
-            const distance = targetDate - now;
-            const elapsed = now - startDate;
-            
-            // 1. 中間大秒數
-            document.getElementById("total-seconds").innerText = distance < 0 ? "PLAY BALL" : Math.floor(distance / 1000).toLocaleString();
+        <div class="card game">
+            <div class="event-info"><div class="time-box">12:00</div><div class="event-title">⚾ 中華 vs 澳洲</div></div>
+            <a href="https://www.google.com/maps/search/?api=1&query=Tokyo+Dome" class="btn-map">📍</a>
+        </div>
 
-            // 2. 中間詳細倒數
-            if (distance >= 0) {
-                const d = Math.floor(distance / (1000 * 60 * 60 * 24));
-                const h = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-                const m = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-                const s = Math.floor((distance % (1000 * 60)) / 1000);
-                const pad = (n) => n < 10 ? '0' + n : n;
-                document.getElementById("d-val").innerText = d;
-                document.getElementById("h-val").innerText = pad(h);
-                document.getElementById("m-val").innerText = pad(m);
-                document.getElementById("s-val").innerText = pad(s);
-            }
+        <div class="traffic-node"><div class="traffic-pill">🚃 電車 (往新木場)</div></div>
 
-            // 3. 進度條與百分比
-            let percent = (elapsed / totalDuration) * 100;
-            if (percent > 100) percent = 100;
-            if (percent < 0) percent = 0;
-            document.getElementById("percentage").innerText = percent.toFixed(7) + "%";
-            document.getElementById("progress-bar").style.width = percent + "%";
+        <div class="card shop">
+            <div class="event-info"><div class="time-box">16:00</div><div class="event-title">RicoLand 東雲</div></div>
+            <a href="https://www.google.com/maps/search/?api=1&query=RicoLand+Tokyo+Bay+Shinonome" class="btn-map">📍</a>
+        </div>
 
-            // 4. 右側欄位詳細倒數 (日 時 分 秒)
-            sideEvents.forEach(event => {
-                const dist = new Date(event.time).getTime() - now;
-                const el = document.getElementById(event.id);
-                if (dist < 0) el.innerText = "DONE";
-                else {
-                    const d = Math.floor(dist / (1000 * 60 * 60 * 24));
-                    const h = Math.floor((dist % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-                    const m = Math.floor((dist % (1000 * 60 * 60)) / (1000 * 60));
-                    const s = Math.floor((dist % (1000 * 60)) / 1000);
-                    el.innerText = `${d}d ${h}h ${m}m ${s}s`;
-                }
-            });
-        }
-        setInterval(updateAll, 30); // 為了讓百分比跳動順暢，更新頻率設為 30ms
-        updateAll();
+        <div class="traffic-node"><div class="traffic-pill">🚕 計程車 / 電車</div></div>
 
-        // 拖放與介面邏輯
-        function allowDrop(ev) { ev.preventDefault(); ev.currentTarget.classList.add('drag-over'); }
-        document.addEventListener("dragleave", function(event) { if (event.target.classList && event.target.classList.contains("lineup-slot")) { event.target.classList.remove("drag-over"); }});
-        function drag(ev) { ev.dataTransfer.setData("name", ev.target.getAttribute("data-name")); }
-        function drop(ev) {
-            ev.preventDefault();
-            let targetSlot = ev.target;
-            while (!targetSlot.classList.contains('lineup-slot')) targetSlot = targetSlot.parentElement;
-            targetSlot.classList.remove('drag-over');
-            const name = ev.dataTransfer.getData("name");
-            targetSlot.querySelector('.slot-content').innerHTML = `<span class="slot-name">${name}</span>`;
-        }
-        function resetLineup() {
-            document.querySelectorAll('.slot-content').forEach(div => div.innerHTML = '<span class="placeholder">DROP</span>');
-            document.querySelectorAll('.pos-select').forEach(sel => sel.selectedIndex = 0);
-        }
-    </script>
+        <div class="card food">
+            <div class="event-info"><div class="time-box">17:30</div><div class="event-title">Taco Bell 台場</div></div>
+            <a href="https://www.google.com/maps/search/?api=1&query=Taco+Bell+Aqua+City+Odaiba" class="btn-map">📍</a>
+        </div>
+    </div>
+
+    <div id="d3" class="day-container">
+        <div class="card move">
+            <div class="event-info"><div class="time-box">10:00</div><div class="event-title">上野站</div></div>
+        </div>
+
+        <div class="traffic-node"><div class="traffic-pill">🚅 新幹線 (25分)</div></div>
+
+        <div class="card game">
+            <div class="event-info"><div class="time-box">10:30</div><div class="event-title">鐵道博物館</div></div>
+            <a href="https://www.google.com/maps/search/?api=1&query=The+Railway+Museum+Omiya" class="btn-map">📍</a>
+        </div>
+
+        <div class="traffic-node"><div class="traffic-pill">🚃 JR 上野東京線</div></div>
+
+        <div class="card shop">
+            <div class="event-info"><div class="time-box">14:15</div><div class="event-title">秋葉原 書泉</div></div>
+            <a href="https://www.google.com/maps/search/?api=1&query=Shosen+Book+Tower" class="btn-map">📍</a>
+        </div>
+
+        <div class="traffic-node"><div class="traffic-pill">🚃 JR 總武線</div></div>
+
+        <div class="card game">
+            <div class="event-info"><div class="time-box">19:00</div><div class="event-title">⚾ 中華 vs 日本</div></div>
+        </div>
+    </div>
+
+    <div id="d4" class="day-container">
+        <div class="card game">
+            <div class="event-info"><div class="time-box">12:00</div><div class="event-title">⚾ 中華 vs 捷克</div></div>
+        </div>
+
+        <div class="traffic-node"><div class="traffic-pill">Ⓜ️ 丸之內線</div></div>
+
+        <div class="card shop">
+            <div class="event-info"><div class="time-box">16:30</div><div class="event-title">MUJI 銀座</div></div>
+            <a href="https://www.google.com/maps/search/?api=1&query=MUJI+Ginza" class="btn-map">📍</a>
+        </div>
+
+        <div class="traffic-node"><div class="traffic-pill">🚶 步行</div></div>
+
+        <div class="card food">
+            <div class="event-info"><div class="time-box">18:30</div><div class="event-title">根岸牛舌</div></div>
+            <a href="https://www.google.com/maps/search/?api=1&query=Negishi+Ginza+Namiki-dori" class="btn-map">📍</a>
+        </div>
+    </div>
+
+    <div id="d5" class="day-container">
+        <div class="card game">
+            <div class="event-info"><div class="time-box">12:00</div><div class="event-title">⚾ 中華 vs 韓國</div></div>
+        </div>
+
+        <div class="traffic-node"><div class="traffic-pill">Ⓜ️ 地鐵移動</div></div>
+
+        <div class="card food">
+            <div class="event-info"><div class="time-box">18:00</div><div class="event-title">Afuri 柚子鹽</div></div>
+            <a href="https://www.google.com/maps/search/?api=1&query=AFURI+Ramen" class="btn-map">📍</a>
+        </div>
+    </div>
+
+    <div id="d6" class="day-container">
+        <div class="card move">
+            <div class="event-info"><div class="time-box">11:00</div><div class="event-title">飯店退房</div></div>
+        </div>
+
+        <div class="traffic-node"><div class="traffic-pill">🚶 步行 (市場前站)</div></div>
+
+        <div class="card move">
+            <div class="event-info"><div class="time-box">12:00</div><div class="event-title">利木津巴士</div></div>
+        </div>
+
+        <div class="traffic-node"><div class="traffic-pill">🚌 直達巴士 (80分)</div></div>
+
+        <div class="card move">
+            <div class="event-info"><div class="time-box">13:40</div><div class="event-title">成田機場 T2</div></div>
+        </div>
+
+        <div class="traffic-node"><div class="traffic-pill">🛫 飛行 4小時</div></div>
+
+        <div class="flight-card">
+            <div class="flight-row"><span class="flight-code">JX 803</span><span>星宇</span></div>
+            <div class="flight-route"><span>NRT 15:40</span><span>TPE 18:45</span></div>
+            <div class="flight-sub"><span>Terminal 2</span><span>Terminal 1</span></div>
+        </div>
+    </div>
+
+</div>
+
+<button class="fab" onclick="window.open('https://www.google.com/maps/search/?api=1&query=La+Vista+Tokyo+Bay')">🏨</button>
+
+<script>
+    function updateClocks() {
+        const now = new Date();
+        document.getElementById('clock-tw').innerText = now.toLocaleTimeString('zh-TW', { timeZone: 'Asia/Taipei', hour: '2-digit', minute: '2-digit', hour12: false });
+        document.getElementById('clock-jp').innerText = now.toLocaleTimeString('zh-TW', { timeZone: 'Asia/Tokyo', hour: '2-digit', minute: '2-digit', hour12: false });
+    }
+    setInterval(updateClocks, 1000); updateClocks();
+
+    function convert() {
+        const jpy = document.getElementById('jpy-input').value;
+        const rate = 0.22;
+        document.getElementById('twd-output').value = jpy ? Math.round(jpy * rate) : '';
+    }
+
+    function setDay(dayId, btn) {
+        document.querySelectorAll('.day-container').forEach(el => el.classList.remove('active'));
+        document.querySelectorAll('.tab').forEach(el => el.classList.remove('active'));
+        document.getElementById(dayId).classList.add('active');
+        btn.classList.add('active');
+    }
+</script>
+
 </body>
 </html>
