@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>WBC 東京戰術儀表板 V19 (最終版)</title>
+    <title>WBC 東京戰術儀表板 V16 (最終版)</title>
     <style>
         :root {
             --bg-gradient: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%);
@@ -179,7 +179,7 @@
         .match-date { font-size: 12px; color: var(--traffic); }
         .countdown-timer { background: rgba(0,0,0,0.4); padding: 8px; border-radius: 6px; font-family: monospace; font-size: 16px; color: var(--accent); text-align: center; letter-spacing: 1px; }
         
-        /* Tools Layout */
+        /* Tools Layout (Fixed V14) */
         .section-title { margin: 25px 0 10px 0; font-size: 12px; color: var(--traffic); letter-spacing: 1px; font-weight: bold; text-transform: uppercase; display: flex; align-items: center; gap: 8px; }
         .section-title::before { content: ''; width: 6px; height: 6px; background: var(--accent); border-radius: 50%; }
         
@@ -358,7 +358,7 @@
             <a href="https://www.google.com/maps/search/?api=1&query=La+Vista+Tokyo+Bay" class="btn-map" target="_blank">📍</a>
             <div class="map-placeholder" onclick="addMapLink(this)">＋</div>
         </div>
-        <div class="traffic-node"><div class="card-del-btn" onclick="removeEl(this)">×</div><div class="traffic-pill editable">🚶 飯店內</div></div>
+        <div class="traffic-node"><div class="card-del-btn" onclick="removeEl(this)">×</div><div class="traffic-pill editable">🚶 飯店內 (不出門)</div></div>
         <div class="card food">
             <div class="card-del-btn" onclick="removeEl(this)">×</div>
             <div class="event-info"><div class="time-box editable">22:30</div><div class="event-title editable">免費夜鳴拉麵</div></div>
@@ -375,15 +375,9 @@
     <div id="d2" class="day-container">
         <div class="card move">
             <div class="card-del-btn" onclick="removeEl(this)">×</div>
-            <div class="event-info"><div class="time-box editable">07:30</div><div class="event-title editable">飯店早餐 (輕食)</div></div>
+            <div class="event-info"><div class="time-box editable">09:00</div><div class="event-title editable">飯店早餐</div></div>
         </div>
-        <div class="traffic-node"><div class="card-del-btn" onclick="removeEl(this)">×</div><div class="traffic-pill editable">🚃 往上野 (海鷗號+山手線)</div></div>
-        <div class="card food">
-            <div class="card-del-btn" onclick="removeEl(this)">×</div>
-            <div class="event-info"><div class="time-box editable">11:00</div><div class="event-title editable">根岸牛舌 (上野店)</div></div>
-            <a href="https://www.google.com/maps/search/?api=1&query=La+Vista+Tokyo+Bay0" class="btn-map" target="_blank">📍</a><div class="map-placeholder" onclick="addMapLink(this)">＋</div>
-        </div>
-        <div class="traffic-node"><div class="card-del-btn" onclick="removeEl(this)">×</div><div class="traffic-pill editable">🚃 大江戶線直達巨蛋</div></div>
+        <div class="traffic-node"><div class="card-del-btn" onclick="removeEl(this)">×</div><div class="traffic-pill editable">🚃 海鷗號 + 地鐵</div></div>
         <div class="card game">
             <div class="card-del-btn" onclick="removeEl(this)">×</div>
             <div class="event-info"><div class="time-box editable">12:00</div><div class="event-title editable">⚾ 中華 vs 澳洲</div></div>
@@ -397,7 +391,7 @@
             <a href="https://www.google.com/maps/search/?api=1&query=RicoLand+Tokyo+Bay+Shinonome" class="btn-map" target="_blank">📍</a>
             <div class="map-placeholder" onclick="addMapLink(this)">＋</div>
         </div>
-        <div class="traffic-node"><div class="card-del-btn" onclick="removeEl(this)">×</div><div class="traffic-pill editable">🚃 回豐洲站</div></div>
+        <div class="traffic-node"><div class="card-del-btn" onclick="removeEl(this)">×</div><div class="traffic-pill editable">🚶 步行 / 🚕</div></div>
         <div class="card food">
             <div class="card-del-btn" onclick="removeEl(this)">×</div>
             <div class="event-info"><div class="time-box editable">18:00</div><div class="event-title editable">薩莉亞 豐洲店</div></div>
@@ -408,44 +402,35 @@
     </div>
 
     <div id="d3" class="day-container">
-        <div class="card move"><div class="card-del-btn" onclick="removeEl(this)">×</div><div class="event-info"><div class="time-box editable">07:00</div><div class="event-title editable">飯店早餐</div></div></div>
-        <div class="traffic-node"><div class="card-del-btn" onclick="removeEl(this)">×</div><div class="traffic-pill editable">🚃 電車前往上野</div></div>
         <div class="card move"><div class="card-del-btn" onclick="removeEl(this)">×</div><div class="event-info"><div class="time-box editable">10:00</div><div class="event-title editable">上野站 -> 新幹線</div></div></div>
         <div class="traffic-node"><div class="card-del-btn" onclick="removeEl(this)">×</div><div class="traffic-pill editable">🚅 新幹線 (25分)</div></div>
         <div class="card game"><div class="card-del-btn" onclick="removeEl(this)">×</div><div class="event-info"><div class="time-box editable">10:30</div><div class="event-title editable">鐵道博物館</div></div><a href="https://www.google.com/maps/search/?api=1&query=The+Railway+Museum+Omiya" class="btn-map" target="_blank">📍</a><div class="map-placeholder" onclick="addMapLink(this)">＋</div></div>
-        <div class="traffic-node"><div class="card-del-btn" onclick="removeEl(this)">×</div><div class="traffic-pill editable">🚃 往新宿 (埼京線)</div></div>
-        <div class="card food"><div class="card-del-btn" onclick="removeEl(this)">×</div><div class="event-info"><div class="time-box editable">14:00</div><div class="event-title editable">新宿聚餐 (蟹道樂/敘敘苑)</div></div></div>
-        <div class="traffic-node"><div class="card-del-btn" onclick="removeEl(this)">×</div><div class="traffic-pill editable">🚃 往神保町 (新宿線)</div></div>
-        <div class="card shop"><div class="card-del-btn" onclick="removeEl(this)">×</div><div class="event-info"><div class="time-box editable">16:00</div><div class="event-title editable">書泉 Grande (神保町)</div></div><a href="https://maps.app.goo.gl/9yQ7z8z8z8z8z8z8" class="btn-map" target="_blank">📍</a><div class="map-placeholder" onclick="addMapLink(this)">＋</div></div>
-        <div class="traffic-node"><div class="card-del-btn" onclick="removeEl(this)">×</div><div class="traffic-pill editable">🚃 往水道橋 (三田線)</div></div>
+        <div class="card food"><div class="card-del-btn" onclick="removeEl(this)">×</div><div class="event-info"><div class="time-box editable">12:30</div><div class="event-title editable">博物館內 / 隨意吃</div></div></div>
+        <div class="traffic-node"><div class="card-del-btn" onclick="removeEl(this)">×</div><div class="traffic-pill editable">🚃 JR 上野東京線</div></div>
+        <div class="card shop"><div class="card-del-btn" onclick="removeEl(this)">×</div><div class="event-info"><div class="time-box editable">14:30</div><div class="event-title editable">秋葉原 書泉</div></div><a href="https://www.google.com/maps/search/?api=1&query=Shosen+Book+Tower" class="btn-map" target="_blank">📍</a><div class="map-placeholder" onclick="addMapLink(this)">＋</div></div>
+        <div class="traffic-node"><div class="card-del-btn" onclick="removeEl(this)">×</div><div class="traffic-pill editable">🚃 JR 總武線</div></div>
         <div class="card game"><div class="card-del-btn" onclick="removeEl(this)">×</div><div class="event-info"><div class="time-box editable">19:00</div><div class="event-title editable">⚾ 中華 vs 日本</div></div></div>
         <div class="add-controls"><div class="add-btn-small" onclick="addCard('move')">+ 移動</div><div class="add-btn-small" onclick="addTraffic()">+ 交通</div><div class="add-btn-small" onclick="addCard('game')">+ 球賽</div><div class="add-btn-small" onclick="addCard('food')">+ 餐廳</div><div class="add-btn-small" onclick="addCard('shop')">+ 購物</div></div>
     </div>
 
     <div id="d4" class="day-container">
-        <div class="card move"><div class="card-del-btn" onclick="removeEl(this)">×</div><div class="event-info"><div class="time-box editable">08:30</div><div class="event-title editable">飯店早餐</div></div></div>
-        <div class="traffic-node"><div class="card-del-btn" onclick="removeEl(this)">×</div><div class="traffic-pill editable">🚃 往東京巨蛋</div></div>
         <div class="card game"><div class="card-del-btn" onclick="removeEl(this)">×</div><div class="event-info"><div class="time-box editable">12:00</div><div class="event-title editable">⚾ 中華 vs 捷克</div></div></div>
-        <div class="traffic-node"><div class="card-del-btn" onclick="removeEl(this)">×</div><div class="traffic-pill editable">Ⓜ️ 丸之內線往銀座</div></div>
-        <div class="card shop"><div class="card-del-btn" onclick="removeEl(this)">×</div><div class="event-info"><div class="time-box editable">16:30</div><div class="event-title editable">無印良品 銀座</div></div><a href="https://www.google.com/maps/search/?api=1&query=MUJI+Ginza" class="btn-map" target="_blank">📍</a><div class="map-placeholder" onclick="addMapLink(this)">＋</div></div>
-        <div class="card shop"><div class="card-del-btn" onclick="removeEl(this)">×</div><div class="event-info"><div class="time-box editable">18:00</div><div class="event-title editable">3COINS 西銀座店</div></div><a href="https://maps.app.goo.gl/yyy" class="btn-map" target="_blank">📍</a><div class="map-placeholder" onclick="addMapLink(this)">＋</div></div>
-        <div class="traffic-node"><div class="card-del-btn" onclick="removeEl(this)">×</div><div class="traffic-pill editable">Ⓜ️ 日比谷線往六本木</div></div>
-        <div class="card food"><div class="card-del-btn" onclick="removeEl(this)">×</div><div class="event-info"><div class="time-box editable">19:00</div><div class="event-title editable">AFURI (六本木店)</div></div><a href="https://www.google.com/maps/search/?api=1&query=La+Vista+Tokyo+Bay1" class="btn-map" target="_blank">📍</a><div class="map-placeholder" onclick="addMapLink(this)">＋</div></div>
+        <div class="traffic-node"><div class="card-del-btn" onclick="removeEl(this)">×</div><div class="traffic-pill editable">Ⓜ️ 丸之內線</div></div>
+        <div class="card shop"><div class="card-del-btn" onclick="removeEl(this)">×</div><div class="event-info"><div class="time-box editable">16:30</div><div class="event-title editable">MUJI 銀座 / Uniqlo</div></div><a href="https://www.google.com/maps/search/?api=1&query=MUJI+Ginza" class="btn-map" target="_blank">📍</a><div class="map-placeholder" onclick="addMapLink(this)">＋</div></div>
+        <div class="traffic-node"><div class="card-del-btn" onclick="removeEl(this)">×</div><div class="traffic-pill editable">🚶 步行</div></div>
+        <div class="card food"><div class="card-del-btn" onclick="removeEl(this)">×</div><div class="event-info"><div class="time-box editable">18:30</div><div class="event-title editable">根岸牛舌</div></div><a href="https://www.google.com/maps/search/?api=1&query=Negishi+Ginza+Namiki-dori" class="btn-map" target="_blank">📍</a><div class="map-placeholder" onclick="addMapLink(this)">＋</div></div>
         <div class="add-controls"><div class="add-btn-small" onclick="addCard('move')">+ 移動</div><div class="add-btn-small" onclick="addTraffic()">+ 交通</div><div class="add-btn-small" onclick="addCard('game')">+ 球賽</div><div class="add-btn-small" onclick="addCard('food')">+ 餐廳</div><div class="add-btn-small" onclick="addCard('shop')">+ 購物</div></div>
     </div>
 
     <div id="d5" class="day-container">
-        <div class="card move"><div class="card-del-btn" onclick="removeEl(this)">×</div><div class="event-info"><div class="time-box editable">07:30</div><div class="event-title editable">飯店早餐 (輕食)</div></div></div>
-        <div class="traffic-node"><div class="card-del-btn" onclick="removeEl(this)">×</div><div class="traffic-pill editable">🚃 往東京巨蛋</div></div>
-        <div class="card food"><div class="card-del-btn" onclick="removeEl(this)">×</div><div class="event-info"><div class="time-box editable">11:00</div><div class="event-title editable">Bubba Gump (LaQua)</div></div><a href="https://www.google.com/maps/search/?api=1&query=La+Vista+Tokyo+Bay2" class="btn-map" target="_blank">📍</a><div class="map-placeholder" onclick="addMapLink(this)">＋</div></div>
         <div class="card game"><div class="card-del-btn" onclick="removeEl(this)">×</div><div class="event-info"><div class="time-box editable">12:00</div><div class="event-title editable">⚾ 中華 vs 韓國</div></div></div>
-        <div class="traffic-node"><div class="card-del-btn" onclick="removeEl(this)">×</div><div class="traffic-pill editable">Ⓜ️ 地鐵往押上</div></div>
-        <div class="card food"><div class="card-del-btn" onclick="removeEl(this)">×</div><div class="event-info"><div class="time-box editable">17:00</div><div class="event-title editable">Toriton 壽司 (晴空塔)</div></div><a href="https://maps.app.goo.gl/zzz" class="btn-map" target="_blank">📍</a><div class="map-placeholder" onclick="addMapLink(this)">＋</div></div>
+        <div class="traffic-node"><div class="card-del-btn" onclick="removeEl(this)">×</div><div class="traffic-pill editable">Ⓜ️ 地鐵移動</div></div>
+        <div class="card food"><div class="card-del-btn" onclick="removeEl(this)">×</div><div class="event-info"><div class="time-box editable">18:00</div><div class="event-title editable">Afuri 柚子鹽</div></div><a href="https://www.google.com/maps/search/?api=1&query=AFURI+Ramen" class="btn-map" target="_blank">📍</a><div class="map-placeholder" onclick="addMapLink(this)">＋</div></div>
+        <div class="card shop"><div class="card-del-btn" onclick="removeEl(this)">×</div><div class="event-info"><div class="time-box editable">20:00</div><div class="event-title editable">豐洲 Lalaport 補貨</div></div><a href="http://googleusercontent.com/maps.google.com/LalaportToyosu" class="btn-map" target="_blank">📍</a><div class="map-placeholder" onclick="addMapLink(this)">＋</div></div>
         <div class="add-controls"><div class="add-btn-small" onclick="addCard('move')">+ 移動</div><div class="add-btn-small" onclick="addTraffic()">+ 交通</div><div class="add-btn-small" onclick="addCard('game')">+ 球賽</div><div class="add-btn-small" onclick="addCard('food')">+ 餐廳</div><div class="add-btn-small" onclick="addCard('shop')">+ 購物</div></div>
     </div>
 
     <div id="d6" class="day-container">
-        <div class="card move"><div class="card-del-btn" onclick="removeEl(this)">×</div><div class="event-info"><div class="time-box editable">09:00</div><div class="event-title editable">最後早餐</div></div></div>
         <div class="card move"><div class="card-del-btn" onclick="removeEl(this)">×</div><div class="event-info"><div class="time-box editable">11:00</div><div class="event-title editable">飯店退房</div></div></div>
         <div class="traffic-node"><div class="card-del-btn" onclick="removeEl(this)">×</div><div class="traffic-pill editable">🚶 步行 (市場前站)</div></div>
         <div class="card move"><div class="card-del-btn" onclick="removeEl(this)">×</div><div class="event-info"><div class="time-box editable">12:00</div><div class="event-title editable">利木津巴士</div></div></div>
@@ -493,6 +478,13 @@
             <button class="add-btn" onclick="addItem('shopping')">＋</button>
         </div>
         <div id="shopping-list"></div>
+
+        <div class="section-title">裝備檢查 (Packing)</div>
+        <div class="input-group">
+            <input type="text" id="new-pack" class="tool-input" placeholder="新增裝備...">
+            <button class="add-btn" onclick="addItem('packing')">＋</button>
+        </div>
+        <div id="packing-list"></div>
 
         <div class="section-title">自訂連結 (Bookmarks)</div>
         <div class="input-group">
@@ -557,7 +549,6 @@ function toggleEditMode() {
     if (isEditing) {
         btn.classList.add('active'); container.classList.add('editable-active');
         document.querySelectorAll('.editable').forEach(el => el.setAttribute('contenteditable', 'true'));
-        // 處理地圖連結編輯狀態
         document.querySelectorAll('.btn-map').forEach(el => {
             el.onclick = (e) => {
                 e.preventDefault();
@@ -565,7 +556,7 @@ function toggleEditMode() {
                 if(url !== null) {
                     if(url.trim() === "") el.setAttribute("href", "");
                     else el.setAttribute("href", url);
-                    toggleEditMode(); toggleEditMode(); // Refresh visual
+                    toggleEditMode(); toggleEditMode(); 
                 }
             };
         });
@@ -574,7 +565,7 @@ function toggleEditMode() {
         document.querySelectorAll('.editable').forEach(el => el.setAttribute('contenteditable', 'false'));
         document.querySelectorAll('.btn-map').forEach(el => el.onclick = null);
         
-        localStorage.setItem('wbc_content_v19', container.innerHTML);
+        localStorage.setItem('wbc_content_v16', container.innerHTML);
         alert('變更已儲存');
     }
 }
@@ -638,8 +629,8 @@ window.addTraffic = function() {
 
 function resetData() {
     if(confirm('重置所有資料？')) {
-        localStorage.removeItem('wbc_content_v19');
-        localStorage.removeItem('wbc_lists_v19');
+        localStorage.removeItem('wbc_content_v16');
+        localStorage.removeItem('wbc_lists_v16');
         location.reload();
     }
 }
@@ -686,9 +677,14 @@ function createItemEl(item, index, type) {
 }
 
 function addItem(type) {
-    const id = 'new-item'; const input = document.getElementById(id);
+    const id = type === 'shopping' ? 'new-item' : 'new-pack';
+    const input = document.getElementById(id);
     const val = input.value.trim();
-    if(val) { shoppingData.push({name: val, checked: false}); input.value = ''; renderLists(); }
+    if(val) { 
+        if(type === 'shopping') shoppingData.push({name: val, checked: false});
+        else packingData.push({name: val, checked: false}); 
+        input.value = ''; renderLists(); 
+    }
 }
 function addLink() {
     const nameInput = document.getElementById('link-name'); const urlInput = document.getElementById('link-url');
@@ -701,14 +697,18 @@ function addExpense() {
     if(name && cost) { expenseData.push({name, cost}); nameInput.value = ''; costInput.value = ''; renderLists(); }
 }
 
-window.toggleItem = function(type, index) { shoppingData[index].checked = !shoppingData[index].checked; renderLists(); }
-window.deleteItem = function(type, index) { if(confirm('刪除?')) { shoppingData.splice(index, 1); renderLists(); } }
+window.toggleItem = function(type, index) { 
+    if(type === 'shopping') shoppingData[index].checked = !shoppingData[index].checked;
+    else packingData[index].checked = !packingData[index].checked; 
+    renderLists(); 
+}
+window.deleteItem = function(type, index) { if(confirm('刪除?')) { if(type === 'shopping') shoppingData.splice(index, 1); else packingData.splice(index, 1); renderLists(); } }
 window.deleteLink = function(index) { if(confirm('刪除連結?')) linkData.splice(index, 1); renderLists(); }
 window.deleteExpense = function(index) { if(confirm('刪除記帳?')) { expenseData.splice(index, 1); renderLists(); } }
 
 function saveLists() {
-    const data = { shopping: shoppingData, links: linkData, expenses: expenseData };
-    try { localStorage.setItem('wbc_lists_v19', JSON.stringify(data)); } catch(e){}
+    const data = { shopping: shoppingData, packing: packingData, links: linkData, expenses: expenseData };
+    try { localStorage.setItem('wbc_lists_v16', JSON.stringify(data)); } catch(e){}
 }
 
 // --- INIT ---
@@ -736,17 +736,32 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Load Content
     try {
-        const savedHTML = localStorage.getItem('wbc_content_v19');
+        const savedHTML = localStorage.getItem('wbc_content_v16');
         if(savedHTML) document.getElementById('main-content').innerHTML = savedHTML;
 
-        const savedLists = localStorage.getItem('wbc_lists_v19');
+        const savedLists = localStorage.getItem('wbc_lists_v16');
         if(savedLists) {
             const data = JSON.parse(savedLists);
             shoppingData = data.shopping || [];
+            packingData = data.packing || [];
             linkData = data.links || [];
             expenseData = data.expenses || [];
         } else {
-            shoppingData = [{name: "🧤 摩托車手套", checked: false}];
+            // Default Shopping Strategy
+            shoppingData = [
+                {name: "SHOEI GT-Air 3 (必買)", checked: false},
+                {name: "SHOEI (妹妹/需確認尺寸)", checked: false},
+                {name: "RicoLand: 騎士手套", checked: false},
+                {name: "Uniqlo: 褲子", checked: false},
+                {name: "秋葉原: 寫真集", checked: false},
+                {name: "WBC 周邊: 毛巾/球衣", checked: false},
+                {name: "機場: 伴手禮", checked: false}
+            ];
+            packingData = [
+                {name: "🛂 護照", checked: false}, 
+                {name: "💳 西瓜卡/信用卡", checked: false},
+                {name: "🎫 WBC 門票", checked: false}
+            ];
             linkData = [{name: "WBC官網", url: "https://www.wbc2026.com"}];
         }
     } catch(e) {}
