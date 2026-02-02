@@ -3,11 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>WBC 東京戰術儀表板 V12 (財務版)</title>
+    <title>WBC 東京戰術儀表板 V16</title>
     <style>
         :root {
             --bg-gradient: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%);
-            --glass-bg: rgba(30, 41, 59, 0.9);
+            --glass-bg: rgba(30, 41, 59, 0.95);
             --glass-border: rgba(255, 255, 255, 0.1);
             --primary: #3b82f6;
             --accent: #f43f5e;
@@ -16,7 +16,7 @@
             --text-main: #ffffff;
             --live: #22c55e;
             --done: #475569;
-            --money: #10b981; /* 記帳專用綠色 */
+            --money: #10b981;
         }
 
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; outline: none; }
@@ -25,7 +25,7 @@
             font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Roboto, sans-serif;
             background: var(--bg-gradient);
             color: var(--text-main);
-            margin: 0; padding: 0; min-height: 100vh; padding-bottom: 120px;
+            margin: 0; padding: 0; min-height: 100vh; padding-bottom: 150px;
         }
 
         /* --- Header --- */
@@ -44,11 +44,10 @@
         .clock-row { font-family: monospace; font-weight: bold; font-size: 12px; display: flex; gap: 5px; }
         .time-tw { color: var(--primary); } .time-jp { color: var(--accent); }
 
-        /* --- Toolbar (Edit + Global Nav) --- */
+        /* --- Toolbar --- */
         .toolbar { display: flex; gap: 8px; overflow-x: auto; white-space: nowrap; align-items: center; scrollbar-width: none; }
         .toolbar::-webkit-scrollbar { display: none; }
         
-        /* Global Navigation Buttons */
         .nav-btn {
             background: rgba(255,255,255,0.05); border: 1px solid var(--glass-border);
             color: var(--traffic); padding: 6px 12px; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer;
@@ -60,13 +59,13 @@
         .nav-btn.tools { border-color: rgba(16, 185, 129, 0.3); color: var(--money); }
         .nav-btn.tools.active { background: var(--money); color: white; }
 
-        /* Edit Buttons */
         .action-btn { 
             background: rgba(255,255,255,0.1); border: 1px solid var(--glass-border);
             color: white; width: 32px; height: 32px; border-radius: 8px;
             display: flex; align-items: center; justify-content: center; cursor: pointer; flex-shrink: 0;
         }
         .action-btn.active { background: var(--primary); border-color: var(--primary); }
+        .action-btn.reset { background: rgba(244, 63, 94, 0.2); color: var(--accent); }
 
         /* --- Converter --- */
         .converter-container { padding: 10px 15px 0 15px; }
@@ -80,7 +79,7 @@
         }
         .rate-info { font-size: 10px; color: var(--traffic); margin-top: 4px; text-align: right; padding-right: 5px; }
 
-        /* --- Daily Tabs --- */
+        /* --- Tabs --- */
         .tabs-wrapper { overflow-x: auto; white-space: nowrap; padding: 10px 15px; scrollbar-width: none; }
         .tabs-wrapper::-webkit-scrollbar { display: none; }
         .tab {
@@ -95,13 +94,37 @@
         .day-container { display: none; }
         .day-container.active { display: block; animation: slideUp 0.3s ease; }
 
-        /* Editable Highlights */
+        /* --- EDIT MODE --- */
         .editable-active .editable {
             border: 1px dashed rgba(59, 130, 246, 0.7); background: rgba(0, 0, 0, 0.4);
             min-width: 20px; padding: 2px 5px; border-radius: 4px;
         }
+        .card-del-btn {
+            display: none; position: absolute; top: -8px; right: -8px;
+            width: 24px; height: 24px; background: var(--accent); border-radius: 50%;
+            color: white; font-weight: bold; align-items: center; justify-content: center;
+            border: 2px solid #1e1b4b; cursor: pointer; z-index: 10;
+        }
+        .editable-active .card-del-btn { display: flex; animation: popIn 0.2s; }
+        .editable-active .traffic-node .card-del-btn { top: 0; right: 20%; width: 18px; height: 18px; font-size: 12px; }
+        .add-controls {
+            display: none; grid-template-columns: repeat(5, 1fr); gap: 5px;
+            margin-top: 20px; padding-top: 20px; border-top: 1px dashed var(--glass-border);
+        }
+        .editable-active .add-controls { display: grid; }
+        .add-btn-small {
+            background: rgba(255,255,255,0.1); border: 1px solid var(--glass-border); color: white;
+            padding: 8px 0; border-radius: 8px; font-size: 10px; text-align: center; cursor: pointer;
+        }
+        .map-placeholder {
+            display: none; width: 36px; height: 36px; border-radius: 50%;
+            background: rgba(255,255,255,0.05); border: 1px dashed var(--traffic);
+            color: var(--traffic); align-items: center; justify-content: center; cursor: pointer;
+        }
+        .editable-active .btn-map.hidden { display: none; }
+        .editable-active .map-placeholder { display: flex; }
 
-        /* Itinerary Cards */
+        /* --- Cards --- */
         .card {
             background: var(--glass-bg); border: 1px solid var(--glass-border);
             border-radius: 12px; padding: 15px; position: relative;
@@ -113,14 +136,15 @@
             padding: 4px 8px; border-radius: 6px; background: rgba(0,0,0,0.4); flex-shrink: 0;
         }
         .event-title { font-size: 16px; font-weight: 600; }
+        
         .btn-map {
             width: 36px; height: 36px; border-radius: 50%;
             background: rgba(59, 130, 246, 0.15); color: #60a5fa;
             display: flex; align-items: center; justify-content: center;
             text-decoration: none; border: 1px solid rgba(59, 130, 246, 0.3); font-size: 16px; flex-shrink: 0;
         }
+        .btn-map[href=""] { display: none; }
 
-        /* Traffic Node */
         .traffic-node {
             display: flex; flex-direction: column; align-items: center; justify-content: center;
             padding: 8px 0; position: relative; color: var(--traffic); font-size: 11px;
@@ -131,10 +155,9 @@
             border: 1px solid rgba(255,255,255,0.1); display: flex; align-items: center; gap: 6px;
         }
 
-        /* Flight Card */
         .flight-card {
             background: linear-gradient(90deg, rgba(234, 179, 8, 0.1), rgba(30, 41, 59, 0.7));
-            border-left: 3px solid var(--flight); border-radius: 12px; padding: 15px; margin: 5px 0;
+            border-left: 3px solid var(--flight); border-radius: 12px; padding: 15px; margin: 5px 0; position: relative;
         }
         .flight-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
         .flight-code { font-family: monospace; font-weight: bold; color: var(--flight); font-size: 18px; }
@@ -146,76 +169,55 @@
         .flight-duration::after { content: ''; display: block; width: 100%; height: 2px; background: rgba(234, 179, 8, 0.5); margin-top: 4px; }
         .flight-footer { display: flex; justify-content: space-between; margin-top: 10px; font-size: 11px; color: var(--traffic); }
 
-        /* Tools & Finance Styles */
-        .section-title { 
-            margin: 25px 0 10px 0; font-size: 12px; color: var(--traffic); 
-            letter-spacing: 1px; font-weight: bold; text-transform: uppercase;
-            display: flex; align-items: center; gap: 8px;
+        .match-card {
+            background: rgba(20, 20, 25, 0.6); border: 1px solid var(--glass-border);
+            border-radius: 12px; padding: 12px; margin-bottom: 10px; position: relative;
         }
+        .match-card.milestone { border-left: 3px solid #a855f7; background: linear-gradient(90deg, rgba(168, 85, 247, 0.1), rgba(30, 41, 59, 0.7)); }
+        .match-header { display: flex; justify-content: space-between; margin-bottom: 8px; }
+        .match-teams { font-size: 15px; font-weight: bold; color: white; }
+        .match-date { font-size: 12px; color: var(--traffic); }
+        .countdown-timer { background: rgba(0,0,0,0.4); padding: 8px; border-radius: 6px; font-family: monospace; font-size: 16px; color: var(--accent); text-align: center; letter-spacing: 1px; }
+        
+        /* Tools Layout */
+        .section-title { margin: 25px 0 10px 0; font-size: 12px; color: var(--traffic); letter-spacing: 1px; font-weight: bold; text-transform: uppercase; display: flex; align-items: center; gap: 8px; }
         .section-title::before { content: ''; width: 6px; height: 6px; background: var(--accent); border-radius: 50%; }
-
-        /* Inputs */
-        .input-group { display: flex; gap: 10px; margin-bottom: 10px; }
+        
+        .input-group { display: flex; gap: 8px; margin-bottom: 10px; align-items: stretch; }
         .input-stack { display: flex; flex-direction: column; gap: 8px; flex: 1; }
         .tool-input { background: rgba(0,0,0,0.3); border: 1px solid var(--glass-border); color: white; padding: 10px; border-radius: 8px; font-size: 14px; width: 100%; }
-        .add-btn { background: var(--primary); color: white; border: none; padding: 0 15px; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 20px; display: flex; align-items: center; justify-content: center; }
+        .add-btn { background: var(--primary); color: white; border: none; padding: 0 15px; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 20px; display: flex; align-items: center; justify-content: center; width: 50px; }
         
-        /* Checklist */
-        .checklist-item {
-            background: var(--glass-bg); padding: 12px; border-radius: 10px; margin-bottom: 8px;
-            display: flex; align-items: center; justify-content: space-between; border: 1px solid var(--glass-border);
-        }
+        .checklist-item { background: var(--glass-bg); padding: 12px; border-radius: 10px; margin-bottom: 8px; display: flex; align-items: center; justify-content: space-between; border: 1px solid var(--glass-border); }
         .check-group { display: flex; align-items: center; gap: 10px; flex: 1; cursor: pointer; }
         .checklist-item.checked .item-name { opacity: 0.5; text-decoration: line-through; }
         .checklist-item.checked .checkbox { background: var(--primary); }
         .checklist-item.checked .checkbox::after { content: '✓'; color: white; font-weight: bold; font-size: 12px; }
         .checkbox { width: 20px; height: 20px; border: 2px solid var(--primary); border-radius: 5px; display: flex; align-items: center; justify-content: center; }
         .delete-btn { color: var(--accent); font-size: 18px; cursor: pointer; padding: 0 10px; }
-
-        /* Link List */
-        .link-list { display: grid; grid-template-columns: 1fr; gap: 10px; }
-        .link-item {
-            background: rgba(59, 130, 246, 0.15); padding: 12px; border-radius: 10px;
-            display: flex; justify-content: space-between; align-items: center;
-            border: 1px solid rgba(59, 130, 246, 0.3);
-        }
-        .link-content { display: flex; flex-direction: column; flex: 1; text-decoration: none; color: #60a5fa; }
-        .link-name { font-weight: bold; font-size: 14px; }
-        .link-url { font-size: 11px; opacity: 0.7; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; max-width: 250px; }
-
-        /* Accounting (New) */
-        .expense-summary {
-            background: linear-gradient(135deg, rgba(16, 185, 129, 0.2), rgba(6, 78, 59, 0.8));
-            border: 1px solid rgba(16, 185, 129, 0.4); border-radius: 12px; padding: 15px; margin-bottom: 15px;
-            display: flex; justify-content: space-between; align-items: center;
-        }
+        
+        .expense-summary { background: linear-gradient(135deg, rgba(16, 185, 129, 0.2), rgba(6, 78, 59, 0.8)); border: 1px solid rgba(16, 185, 129, 0.4); border-radius: 12px; padding: 15px; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; }
         .total-box { text-align: center; }
         .total-label { font-size: 10px; color: #a7f3d0; text-transform: uppercase; }
         .total-value { font-size: 20px; font-weight: bold; color: white; font-family: monospace; }
         .total-sub { font-size: 12px; color: #6ee7b7; font-family: monospace; }
-
-        .expense-item {
-            display: flex; justify-content: space-between; align-items: center;
-            background: rgba(0,0,0,0.2); padding: 10px; border-radius: 8px; margin-bottom: 5px; border-bottom: 1px solid var(--glass-border);
-        }
-        .expense-name { font-size: 14px; }
+        .expense-item { display: flex; justify-content: space-between; align-items: center; background: rgba(0,0,0,0.2); padding: 10px; border-radius: 8px; margin-bottom: 5px; border-bottom: 1px solid var(--glass-border); }
         .expense-cost { font-family: monospace; font-weight: bold; color: var(--money); }
 
-        /* Colors */
+        .link-list { display: flex; flex-direction: column; gap: 8px; }
+        .link-item { background: rgba(59, 130, 246, 0.15); padding: 12px; border-radius: 10px; display: flex; justify-content: space-between; align-items: center; border: 1px solid rgba(59, 130, 246, 0.3); }
+        .link-content { display: flex; flex-direction: column; flex: 1; text-decoration: none; color: #60a5fa; overflow: hidden; }
+        .link-name { font-weight: bold; font-size: 14px; }
+        .link-url { font-size: 11px; opacity: 0.7; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+
         .move .time-box { color: #60a5fa; border-left: 3px solid #60a5fa; }
         .game .time-box { color: #f43f5e; border-left: 3px solid #f43f5e; }
         .food .time-box { color: #34d399; border-left: 3px solid #34d399; }
         .shop .time-box { color: #fbbf24; border-left: 3px solid #fbbf24; }
-        .match-card { background: rgba(20, 20, 25, 0.6); border: 1px solid var(--glass-border); border-radius: 12px; padding: 12px; margin-bottom: 10px; }
-        .match-header { display: flex; justify-content: space-between; margin-bottom: 8px; }
-        .countdown-timer { background: rgba(0,0,0,0.4); padding: 8px; border-radius: 6px; font-family: monospace; font-size: 16px; color: var(--accent); text-align: center; }
 
-        .fab {
-            position: fixed; bottom: 30px; right: 20px; width: 56px; height: 56px;
-            background: var(--primary); border-radius: 50%; box-shadow: 0 4px 15px rgba(0,0,0,0.5);
-            display: flex; align-items: center; justify-content: center; color: white; font-size: 28px; border: none; z-index: 200; cursor: pointer;
-        }
+        .fab { position: fixed; bottom: 30px; right: 20px; width: 56px; height: 56px; background: var(--primary); border-radius: 50%; box-shadow: 0 4px 15px rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; color: white; font-size: 28px; border: none; z-index: 200; cursor: pointer; }
         @keyframes slideUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes popIn { from { transform: scale(0); } to { transform: scale(1); } }
     </style>
 </head>
 <body>
@@ -232,7 +234,8 @@
     <div class="toolbar">
         <div class="nav-btn match active" onclick="setDay('matches', this)">⚾ 賽程</div>
         <div class="nav-btn tools" onclick="setDay('tools', this)">🛠️ 戰勤</div>
-        <div style="flex:1"></div> <div class="action-btn" onclick="toggleEditMode()" id="editBtn">✏️</div>
+        <div style="flex:1"></div>
+        <div class="action-btn" onclick="toggleEditMode()" id="editBtn">✏️</div>
         <div class="action-btn reset" onclick="resetData()">↺</div>
     </div>
 </header>
@@ -258,56 +261,85 @@
 <div class="content-area" id="main-content">
 
     <div id="matches" class="day-container active">
+        <div class="add-controls"><div class="add-btn-small" onclick="addMatch()">+ 比賽</div></div>
         <div class="section-title">重要日程 Milestones</div>
         <div class="match-card milestone" data-time="2026-02-06T08:00:00+08:00">
+            <div class="card-del-btn" onclick="removeEl(this)">×</div>
             <div class="match-header"><span class="match-teams editable">📋 30人名單公佈</span><span class="match-date editable">2/6 08:00 (TW)</span></div>
             <div class="countdown-timer">Loading...</div>
         </div>
         <div class="section-title">自辦熱身賽 (台北大巨蛋)</div>
         <div class="match-card" data-time="2026-02-26T19:00:00+08:00">
+            <div class="card-del-btn" onclick="removeEl(this)">×</div>
             <div class="match-header"><span class="match-teams editable">🇹🇼 vs 軟銀鷹</span><span class="match-date editable">2/26 19:00 (TW)</span></div>
             <div class="countdown-timer">Loading...</div>
         </div>
         <div class="match-card" data-time="2026-02-27T15:00:00+08:00">
+            <div class="card-del-btn" onclick="removeEl(this)">×</div>
             <div class="match-header"><span class="match-teams editable">🇹🇼 vs 火腿鬥士</span><span class="match-date editable">2/27 15:00 (TW)</span></div>
             <div class="countdown-timer">Loading...</div>
         </div>
         <div class="section-title">官辦熱身賽 (日本宮崎)</div>
         <div class="match-card" data-time="2026-03-02T10:00:00+09:00">
+            <div class="card-del-btn" onclick="removeEl(this)">×</div>
             <div class="match-header"><span class="match-teams editable">🇹🇼 vs 歐力士</span><span class="match-date editable">3/2 10:00 (JP)</span></div>
             <div class="countdown-timer">Loading...</div>
         </div>
         <div class="match-card" data-time="2026-03-03T10:00:00+09:00">
+            <div class="card-del-btn" onclick="removeEl(this)">×</div>
             <div class="match-header"><span class="match-teams editable">🇹🇼 vs 軟銀鷹</span><span class="match-date editable">3/3 10:00 (JP)</span></div>
             <div class="countdown-timer">Loading...</div>
         </div>
         <div class="section-title">WBC 小組賽 (東京巨蛋)</div>
         <div class="match-card" data-time="2026-03-05T12:00:00+09:00">
+            <div class="card-del-btn" onclick="removeEl(this)">×</div>
             <div class="match-header"><span class="match-teams editable">🇹🇼 vs 🇦🇺 澳洲</span><span class="match-date editable">3/5 12:00</span></div>
             <div class="countdown-timer">Loading...</div>
         </div>
         <div class="match-card" data-time="2026-03-06T19:00:00+09:00">
+            <div class="card-del-btn" onclick="removeEl(this)">×</div>
             <div class="match-header"><span class="match-teams editable">🇹🇼 vs 🇯🇵 日本</span><span class="match-date editable">3/6 19:00</span></div>
             <div class="countdown-timer">Loading...</div>
         </div>
         <div class="match-card" data-time="2026-03-07T12:00:00+09:00">
+            <div class="card-del-btn" onclick="removeEl(this)">×</div>
             <div class="match-header"><span class="match-teams editable">🇹🇼 vs 🇨🇿 捷克</span><span class="match-date editable">3/7 12:00</span></div>
             <div class="countdown-timer">Loading...</div>
         </div>
         <div class="match-card" data-time="2026-03-08T12:00:00+09:00">
+            <div class="card-del-btn" onclick="removeEl(this)">×</div>
             <div class="match-header"><span class="match-teams editable">🇹🇼 vs 🇰🇷 韓國</span><span class="match-date editable">3/8 12:00</span></div>
             <div class="countdown-timer">Loading...</div>
         </div>
     </div>
 
     <div id="d1" class="day-container">
-        <div class="card move"><div class="event-info"><div class="time-box editable">09:50</div><div class="event-title editable">嘉義自宅</div></div></div>
-        <div class="traffic-node"><div class="traffic-pill editable">🚕 計程車 (20分)</div></div>
-        <div class="card move"><div class="event-info"><div class="time-box editable">10:49</div><div class="event-title editable">高鐵嘉義站</div></div></div>
-        <div class="traffic-node"><div class="traffic-pill editable">🚄 高鐵 622 + 機捷</div></div>
-        <div class="card move"><div class="event-info"><div class="time-box editable">13:00</div><div class="event-title editable">桃園機場 T1</div></div></div>
-        <div class="traffic-node"><div class="traffic-pill editable">🚶 貴賓室體驗 / 登機</div></div>
+        <div class="card move">
+            <div class="card-del-btn" onclick="removeEl(this)">×</div>
+            <div class="event-info"><div class="time-box editable">09:50</div><div class="event-title editable">嘉義自宅</div></div>
+        </div>
+        <div class="traffic-node">
+            <div class="card-del-btn" onclick="removeEl(this)">×</div>
+            <div class="traffic-pill editable">🚕 計程車 (20分)</div>
+        </div>
+        <div class="card move">
+            <div class="card-del-btn" onclick="removeEl(this)">×</div>
+            <div class="event-info"><div class="time-box editable">10:49</div><div class="event-title editable">高鐵嘉義站</div></div>
+        </div>
+        <div class="traffic-node">
+            <div class="card-del-btn" onclick="removeEl(this)">×</div>
+            <div class="traffic-pill editable">🚄 高鐵 622 + 機捷</div>
+        </div>
+        <div class="card move">
+            <div class="card-del-btn" onclick="removeEl(this)">×</div>
+            <div class="event-info"><div class="time-box editable">13:00</div><div class="event-title editable">桃園機場 T1</div></div>
+        </div>
+        <div class="traffic-node">
+            <div class="card-del-btn" onclick="removeEl(this)">×</div>
+            <div class="traffic-pill editable">🚶 貴賓室體驗 / 登機</div>
+        </div>
         <div class="flight-card">
+            <div class="card-del-btn" onclick="removeEl(this)">×</div>
             <div class="flight-header"><span class="flight-code editable">JX 804</span><span class="flight-airline editable">STARLUX 星宇</span></div>
             <div class="flight-body">
                 <div class="airport"><span class="ap-code editable">TPE</span><span class="ap-time editable">15:00</span></div>
@@ -316,86 +348,100 @@
             </div>
             <div class="flight-footer"><span>Terminal 1</span><span>Terminal 2</span></div>
         </div>
-        <div class="traffic-node"><div class="traffic-pill editable">🚃 Access 特急 + 轉乘</div></div>
+        <div class="traffic-node">
+            <div class="card-del-btn" onclick="removeEl(this)">×</div>
+            <div class="traffic-pill editable">🚃 Access 特急 + 轉乘</div>
+        </div>
         <div class="card move">
+            <div class="card-del-btn" onclick="removeEl(this)">×</div>
             <div class="event-info"><div class="time-box editable">20:00</div><div class="event-title editable">La Vista (豐洲)</div></div>
-            <a href="https://www.google.com/maps/search/?api=1&query=La+Vista+Tokyo+Bay" class="btn-map">📍</a>
+            <a href="https://www.google.com/maps/search/?api=1&query=La+Vista+Tokyo+Bay" class="btn-map" target="_blank">📍</a>
+            <div class="map-placeholder" onclick="addMapLink(this)">＋</div>
         </div>
-        <div class="traffic-node"><div class="traffic-pill editable">🚶 步行</div></div>
+        <div class="traffic-node"><div class="card-del-btn" onclick="removeEl(this)">×</div><div class="traffic-pill editable">🚶 飯店內</div></div>
         <div class="card food">
-            <div class="event-info"><div class="time-box editable">22:00</div><div class="event-title editable">薩利亞 / 拉麵</div></div>
-            <a href="https://www.google.com/maps/search/?api=1&query=Saizeriya+Toyosu+Front" class="btn-map">📍</a>
+            <div class="card-del-btn" onclick="removeEl(this)">×</div>
+            <div class="event-info"><div class="time-box editable">22:30</div><div class="event-title editable">免費夜鳴拉麵</div></div>
         </div>
+        <div class="add-controls"><div class="add-btn-small" onclick="addCard('move')">+ 移動</div><div class="add-btn-small" onclick="addTraffic()">+ 交通</div><div class="add-btn-small" onclick="addCard('game')">+ 球賽</div><div class="add-btn-small" onclick="addCard('food')">+ 餐廳</div><div class="add-btn-small" onclick="addCard('shop')">+ 購物</div></div>
     </div>
 
     <div id="d2" class="day-container">
-        <div class="card move"><div class="event-info"><div class="time-box editable">09:00</div><div class="event-title editable">飯店早餐</div></div></div>
-        <div class="traffic-node"><div class="traffic-pill editable">🚃 海鷗號 + 地鐵</div></div>
+        <div class="card move">
+            <div class="card-del-btn" onclick="removeEl(this)">×</div>
+            <div class="event-info"><div class="time-box editable">09:00</div><div class="event-title editable">飯店早餐</div></div>
+        </div>
+        <div class="traffic-node"><div class="card-del-btn" onclick="removeEl(this)">×</div><div class="traffic-pill editable">🚃 海鷗號 + 地鐵</div></div>
         <div class="card game">
+            <div class="card-del-btn" onclick="removeEl(this)">×</div>
             <div class="event-info"><div class="time-box editable">12:00</div><div class="event-title editable">⚾ 中華 vs 澳洲</div></div>
-            <a href="https://www.google.com/maps/search/?api=1&query=Tokyo+Dome" class="btn-map">📍</a>
+            <a href="https://www.google.com/maps/search/?api=1&query=Tokyo+Dome" class="btn-map" target="_blank">📍</a>
+            <div class="map-placeholder" onclick="addMapLink(this)">＋</div>
         </div>
-        <div class="traffic-node"><div class="traffic-pill editable">🚃 電車 (往新木場)</div></div>
+        <div class="traffic-node"><div class="card-del-btn" onclick="removeEl(this)">×</div><div class="traffic-pill editable">🚃 電車 (往新木場)</div></div>
         <div class="card shop">
+            <div class="card-del-btn" onclick="removeEl(this)">×</div>
             <div class="event-info"><div class="time-box editable">16:00</div><div class="event-title editable">RicoLand 東雲</div></div>
-            <a href="https://www.google.com/maps/search/?api=1&query=RicoLand+Tokyo+Bay+Shinonome" class="btn-map">📍</a>
+            <a href="https://www.google.com/maps/search/?api=1&query=RicoLand+Tokyo+Bay+Shinonome" class="btn-map" target="_blank">📍</a>
+            <div class="map-placeholder" onclick="addMapLink(this)">＋</div>
         </div>
-        <div class="traffic-node"><div class="traffic-pill editable">🚕 計程車 / 電車</div></div>
+        <div class="traffic-node"><div class="card-del-btn" onclick="removeEl(this)">×</div><div class="traffic-pill editable">🚃 電車 / 公車回豐洲</div></div>
         <div class="card food">
-            <div class="event-info"><div class="time-box editable">17:30</div><div class="event-title editable">Taco Bell 台場</div></div>
-            <a href="https://www.google.com/maps/search/?api=1&query=Taco+Bell+Aqua+City+Odaiba" class="btn-map">📍</a>
+            <div class="card-del-btn" onclick="removeEl(this)">×</div>
+            <div class="event-info"><div class="time-box editable">18:00</div><div class="event-title editable">薩莉亞 豐洲店</div></div>
+            <a href="https://www.google.com/maps/search/?api=1&query=Saizeriya+Toyosu+Front" class="btn-map" target="_blank">📍</a>
+            <div class="map-placeholder" onclick="addMapLink(this)">＋</div>
         </div>
+        <div class="add-controls"><div class="add-btn-small" onclick="addCard('move')">+ 移動</div><div class="add-btn-small" onclick="addTraffic()">+ 交通</div><div class="add-btn-small" onclick="addCard('game')">+ 球賽</div><div class="add-btn-small" onclick="addCard('food')">+ 餐廳</div><div class="add-btn-small" onclick="addCard('shop')">+ 購物</div></div>
     </div>
 
     <div id="d3" class="day-container">
-        <div class="card move"><div class="event-info"><div class="time-box editable">10:00</div><div class="event-title editable">上野站</div></div></div>
-        <div class="traffic-node"><div class="traffic-pill editable">🚅 新幹線 (25分)</div></div>
-        <div class="card game">
-            <div class="event-info"><div class="time-box editable">10:30</div><div class="event-title editable">鐵道博物館</div></div>
-            <a href="https://www.google.com/maps/search/?api=1&query=The+Railway+Museum+Omiya" class="btn-map">📍</a>
-        </div>
-        <div class="traffic-node"><div class="traffic-pill editable">🚃 JR 上野東京線</div></div>
-        <div class="card shop">
-            <div class="event-info"><div class="time-box editable">14:15</div><div class="event-title editable">秋葉原 書泉</div></div>
-            <a href="https://www.google.com/maps/search/?api=1&query=Shosen+Book+Tower" class="btn-map">📍</a>
-        </div>
-        <div class="traffic-node"><div class="traffic-pill editable">🚃 JR 總武線</div></div>
-        <div class="card game">
-            <div class="event-info"><div class="time-box editable">19:00</div><div class="event-title editable">⚾ 中華 vs 日本</div></div>
-        </div>
+        <div class="card move"><div class="card-del-btn" onclick="removeEl(this)">×</div><div class="event-info"><div class="time-box editable">07:00</div><div class="event-title editable">飯店早餐</div></div></div>
+        <div class="traffic-node"><div class="card-del-btn" onclick="removeEl(this)">×</div><div class="traffic-pill editable">🚃 電車前往上野</div></div>
+        <div class="card move"><div class="card-del-btn" onclick="removeEl(this)">×</div><div class="event-info"><div class="time-box editable">10:00</div><div class="event-title editable">上野站 -> 新幹線</div></div></div>
+        <div class="traffic-node"><div class="card-del-btn" onclick="removeEl(this)">×</div><div class="traffic-pill editable">🚅 新幹線 (25分)</div></div>
+        <div class="card game"><div class="card-del-btn" onclick="removeEl(this)">×</div><div class="event-info"><div class="time-box editable">10:30</div><div class="event-title editable">鐵道博物館</div></div><a href="https://www.google.com/maps/search/?api=1&query=The+Railway+Museum+Omiya" class="btn-map" target="_blank">📍</a><div class="map-placeholder" onclick="addMapLink(this)">＋</div></div>
+        <div class="traffic-node"><div class="card-del-btn" onclick="removeEl(this)">×</div><div class="traffic-pill editable">🚃 往新宿 (埼京線)</div></div>
+        <div class="card food"><div class="card-del-btn" onclick="removeEl(this)">×</div><div class="event-info"><div class="time-box editable">14:00</div><div class="event-title editable">新宿聚餐 (蟹道樂/敘敘苑)</div></div></div>
+        <div class="traffic-node"><div class="card-del-btn" onclick="removeEl(this)">×</div><div class="traffic-pill editable">🚃 往神保町 (新宿線)</div></div>
+        <div class="card shop"><div class="card-del-btn" onclick="removeEl(this)">×</div><div class="event-info"><div class="time-box editable">16:30</div><div class="event-title editable">書泉 Grande (神保町)</div></div><a href="https://maps.app.goo.gl/9yQ7z8z8z8z8z8z8" class="btn-map" target="_blank">📍</a><div class="map-placeholder" onclick="addMapLink(this)">＋</div></div>
+        <div class="traffic-node"><div class="card-del-btn" onclick="removeEl(this)">×</div><div class="traffic-pill editable">🚃 往水道橋 (三田線)</div></div>
+        <div class="card game"><div class="card-del-btn" onclick="removeEl(this)">×</div><div class="event-info"><div class="time-box editable">19:00</div><div class="event-title editable">⚾ 中華 vs 日本</div></div></div>
+        <div class="add-controls"><div class="add-btn-small" onclick="addCard('move')">+ 移動</div><div class="add-btn-small" onclick="addTraffic()">+ 交通</div><div class="add-btn-small" onclick="addCard('game')">+ 球賽</div><div class="add-btn-small" onclick="addCard('food')">+ 餐廳</div><div class="add-btn-small" onclick="addCard('shop')">+ 購物</div></div>
     </div>
 
     <div id="d4" class="day-container">
-        <div class="card game"><div class="event-info"><div class="time-box editable">12:00</div><div class="event-title editable">⚾ 中華 vs 捷克</div></div></div>
-        <div class="traffic-node"><div class="traffic-pill editable">Ⓜ️ 丸之內線</div></div>
-        <div class="card shop">
-            <div class="event-info"><div class="time-box editable">16:30</div><div class="event-title editable">MUJI 銀座</div></div>
-            <a href="https://www.google.com/maps/search/?api=1&query=MUJI+Ginza" class="btn-map">📍</a>
-        </div>
-        <div class="traffic-node"><div class="traffic-pill editable">🚶 步行</div></div>
-        <div class="card food">
-            <div class="event-info"><div class="time-box editable">18:30</div><div class="event-title editable">根岸牛舌</div></div>
-            <a href="https://www.google.com/maps/search/?api=1&query=Negishi+Ginza+Namiki-dori" class="btn-map">📍</a>
-        </div>
+        <div class="card move"><div class="card-del-btn" onclick="removeEl(this)">×</div><div class="event-info"><div class="time-box editable">09:00</div><div class="event-title editable">飯店早餐</div></div></div>
+        <div class="traffic-node"><div class="card-del-btn" onclick="removeEl(this)">×</div><div class="traffic-pill editable">🚃 往東京巨蛋</div></div>
+        <div class="card game"><div class="card-del-btn" onclick="removeEl(this)">×</div><div class="event-info"><div class="time-box editable">12:00</div><div class="event-title editable">⚾ 中華 vs 捷克</div></div></div>
+        <div class="traffic-node"><div class="card-del-btn" onclick="removeEl(this)">×</div><div class="traffic-pill editable">Ⓜ️ 丸之內線往東京站</div></div>
+        <div class="card food"><div class="card-del-btn" onclick="removeEl(this)">×</div><div class="event-info"><div class="time-box editable">16:30</div><div class="event-title editable">一幻拉麵 (八重洲)</div></div><a href="https://maps.app.goo.gl/xxx" class="btn-map" target="_blank">📍</a><div class="map-placeholder" onclick="addMapLink(this)">＋</div></div>
+        <div class="traffic-node"><div class="card-del-btn" onclick="removeEl(this)">×</div><div class="traffic-pill editable">🚶 散步去銀座</div></div>
+        <div class="card shop"><div class="card-del-btn" onclick="removeEl(this)">×</div><div class="event-info"><div class="time-box editable">17:30</div><div class="event-title editable">無印良品 銀座</div></div><a href="https://www.google.com/maps/search/?api=1&query=MUJI+Ginza" class="btn-map" target="_blank">📍</a><div class="map-placeholder" onclick="addMapLink(this)">＋</div></div>
+        <div class="card shop"><div class="card-del-btn" onclick="removeEl(this)">×</div><div class="event-info"><div class="time-box editable">18:30</div><div class="event-title editable">3COINS 西銀座店</div></div><a href="https://maps.app.goo.gl/yyy" class="btn-map" target="_blank">📍</a><div class="map-placeholder" onclick="addMapLink(this)">＋</div></div>
+        <div class="add-controls"><div class="add-btn-small" onclick="addCard('move')">+ 移動</div><div class="add-btn-small" onclick="addTraffic()">+ 交通</div><div class="add-btn-small" onclick="addCard('game')">+ 球賽</div><div class="add-btn-small" onclick="addCard('food')">+ 餐廳</div><div class="add-btn-small" onclick="addCard('shop')">+ 購物</div></div>
     </div>
 
     <div id="d5" class="day-container">
-        <div class="card game"><div class="event-info"><div class="time-box editable">12:00</div><div class="event-title editable">⚾ 中華 vs 韓國</div></div></div>
-        <div class="traffic-node"><div class="traffic-pill editable">Ⓜ️ 地鐵移動</div></div>
-        <div class="card food">
-            <div class="event-info"><div class="time-box editable">18:00</div><div class="event-title editable">Afuri 柚子鹽</div></div>
-            <a href="https://www.google.com/maps/search/?api=1&query=AFURI+Ramen" class="btn-map">📍</a>
-        </div>
+        <div class="card move"><div class="card-del-btn" onclick="removeEl(this)">×</div><div class="event-info"><div class="time-box editable">09:00</div><div class="event-title editable">飯店早餐</div></div></div>
+        <div class="traffic-node"><div class="card-del-btn" onclick="removeEl(this)">×</div><div class="traffic-pill editable">🚃 往上野/巨蛋</div></div>
+        <div class="card food"><div class="card-del-btn" onclick="removeEl(this)">×</div><div class="event-info"><div class="time-box editable">11:00</div><div class="event-title editable">根岸牛舌</div></div><a href="https://www.google.com/maps/search/?api=1&query=Negishi+Ginza+Namiki-dori" class="btn-map" target="_blank">📍</a><div class="map-placeholder" onclick="addMapLink(this)">＋</div></div>
+        <div class="card game"><div class="card-del-btn" onclick="removeEl(this)">×</div><div class="event-info"><div class="time-box editable">12:00</div><div class="event-title editable">⚾ 中華 vs 韓國</div></div></div>
+        <div class="traffic-node"><div class="card-del-btn" onclick="removeEl(this)">×</div><div class="traffic-pill editable">Ⓜ️ 地鐵往押上</div></div>
+        <div class="card food"><div class="card-del-btn" onclick="removeEl(this)">×</div><div class="event-info"><div class="time-box editable">17:00</div><div class="event-title editable">Toriton 壽司 (晴空塔)</div></div><a href="https://maps.app.goo.gl/zzz" class="btn-map" target="_blank">📍</a><div class="map-placeholder" onclick="addMapLink(this)">＋</div></div>
+        <div class="add-controls"><div class="add-btn-small" onclick="addCard('move')">+ 移動</div><div class="add-btn-small" onclick="addTraffic()">+ 交通</div><div class="add-btn-small" onclick="addCard('game')">+ 球賽</div><div class="add-btn-small" onclick="addCard('food')">+ 餐廳</div><div class="add-btn-small" onclick="addCard('shop')">+ 購物</div></div>
     </div>
 
     <div id="d6" class="day-container">
-        <div class="card move"><div class="event-info"><div class="time-box editable">11:00</div><div class="event-title editable">飯店退房</div></div></div>
-        <div class="traffic-node"><div class="traffic-pill editable">🚶 步行 (市場前站)</div></div>
-        <div class="card move"><div class="event-info"><div class="time-box editable">12:00</div><div class="event-title editable">利木津巴士</div></div></div>
-        <div class="traffic-node"><div class="traffic-pill editable">🚌 直達巴士 (80分)</div></div>
-        <div class="card move"><div class="event-info"><div class="time-box editable">13:40</div><div class="event-title editable">成田機場 T2</div></div></div>
-        <div class="traffic-node"><div class="traffic-pill editable">🚶 辦理登機</div></div>
+        <div class="card move"><div class="card-del-btn" onclick="removeEl(this)">×</div><div class="event-info"><div class="time-box editable">09:00</div><div class="event-title editable">最後早餐</div></div></div>
+        <div class="card move"><div class="card-del-btn" onclick="removeEl(this)">×</div><div class="event-info"><div class="time-box editable">11:00</div><div class="event-title editable">飯店退房</div></div></div>
+        <div class="traffic-node"><div class="card-del-btn" onclick="removeEl(this)">×</div><div class="traffic-pill editable">🚶 步行 (市場前站)</div></div>
+        <div class="card move"><div class="card-del-btn" onclick="removeEl(this)">×</div><div class="event-info"><div class="time-box editable">12:00</div><div class="event-title editable">利木津巴士</div></div></div>
+        <div class="traffic-node"><div class="card-del-btn" onclick="removeEl(this)">×</div><div class="traffic-pill editable">🚌 直達巴士 (80分)</div></div>
+        <div class="card move"><div class="card-del-btn" onclick="removeEl(this)">×</div><div class="event-info"><div class="time-box editable">13:40</div><div class="event-title editable">成田機場 T2</div></div></div>
+        <div class="traffic-node"><div class="card-del-btn" onclick="removeEl(this)">×</div><div class="traffic-pill editable">🚶 辦理登機</div></div>
         <div class="flight-card">
+            <div class="card-del-btn" onclick="removeEl(this)">×</div>
             <div class="flight-header"><span class="flight-code editable">JX 803</span><span class="flight-airline editable">STARLUX 星宇</span></div>
             <div class="flight-body">
                 <div class="airport"><span class="ap-code editable">NRT</span><span class="ap-time editable">15:40</span></div>
@@ -404,20 +450,14 @@
             </div>
             <div class="flight-footer"><span>Terminal 2</span><span>Terminal 1</span></div>
         </div>
+        <div class="add-controls"><div class="add-btn-small" onclick="addCard('move')">+ 移動</div><div class="add-btn-small" onclick="addTraffic()">+ 交通</div><div class="add-btn-small" onclick="addCard('game')">+ 球賽</div><div class="add-btn-small" onclick="addCard('food')">+ 餐廳</div><div class="add-btn-small" onclick="addCard('shop')">+ 購物</div></div>
     </div>
 
     <div id="tools" class="day-container">
-        
         <div class="section-title">💰 記帳 (Expenses)</div>
         <div class="expense-summary">
-            <div class="total-box">
-                <div class="total-label">總支出 (JPY)</div>
-                <div class="total-value" id="total-jpy">¥0</div>
-            </div>
-            <div class="total-box">
-                <div class="total-label">約合 (TWD)</div>
-                <div class="total-sub" id="total-twd">$0</div>
-            </div>
+            <div class="total-box"><div class="total-label">總支出 (JPY)</div><div class="total-value" id="total-jpy">¥0</div></div>
+            <div class="total-box"><div class="total-label">約合 (TWD)</div><div class="total-sub" id="total-twd">$0</div></div>
         </div>
         <div class="input-group">
             <div class="input-stack">
@@ -428,6 +468,13 @@
         </div>
         <div id="expense-list"></div>
 
+        <div class="section-title">🚕 飯店計程車卡 (Taxi Card)</div>
+        <div class="hotel-card" style="background:white;color:black;padding:20px;border-radius:16px;border:4px solid var(--primary);">
+            <div style="font-weight:900;font-size:20px;margin-bottom:5px;color:#1e1b4b;">La Vista Tokyo Bay</div>
+            <div style="font-size:18px;font-weight:bold;margin-bottom:10px;background:#eee;padding:10px;border-radius:8px;">〒135-0061 東京都江東区豊洲 6-4-40<br>(ゆりかもめ 市場前駅)</div>
+            <div style="font-size:12px;color:#666;">請帶我到這間飯店 / このホテルまでお願いします</div>
+        </div>
+
         <div class="section-title">購物清單 (Shopping)</div>
         <div class="input-group">
             <input type="text" id="new-item" class="tool-input" placeholder="新增物品...">
@@ -435,18 +482,11 @@
         </div>
         <div id="shopping-list"></div>
 
-        <div class="section-title">裝備檢查 (Packing)</div>
-        <div class="input-group">
-            <input type="text" id="new-pack" class="tool-input" placeholder="新增裝備...">
-            <button class="add-btn" onclick="addItem('packing')">＋</button>
-        </div>
-        <div id="packing-list"></div>
-
         <div class="section-title">自訂連結 (Bookmarks)</div>
         <div class="input-group">
             <div class="input-stack">
-                <input type="text" id="link-name" class="tool-input" placeholder="名稱 (如:天氣)">
-                <input type="text" id="link-url" class="tool-input" placeholder="網址 (https://...)">
+                <input type="text" id="link-name" class="tool-input" placeholder="名稱">
+                <input type="text" id="link-url" class="tool-input" placeholder="網址">
             </div>
             <button class="add-btn" onclick="addLink()">＋</button>
         </div>
@@ -459,12 +499,9 @@
 
 <script>
 // --- GLOBAL ---
-let shoppingData = [];
-let packingData = [];
-let linkData = [];
-let expenseData = [];
+let shoppingData = [], packingData = [], linkData = [], expenseData = [];
 let isEditing = false;
-let currentRate = 0.22; // fallback
+let currentRate = 0.22;
 
 // --- CLOCKS ---
 function updateClocks() {
@@ -473,131 +510,150 @@ function updateClocks() {
     document.getElementById('clock-jp').innerText = now.toLocaleTimeString('zh-TW', { timeZone: 'Asia/Tokyo', hour: '2-digit', minute: '2-digit', hour12: false });
 }
 
-// --- CURRENCY FETCH ---
+// --- CURRENCY ---
 async function fetchRate() {
     try {
         const res = await fetch('https://api.exchangerate-api.com/v4/latest/JPY');
         const data = await res.json();
         if(data && data.rates && data.rates.TWD) {
             currentRate = data.rates.TWD;
-            document.getElementById('rate-display').innerText = `即時匯率: ${currentRate} (網際網路)`;
+            document.getElementById('rate-display').innerText = `即時匯率: ${currentRate}`;
         }
-    } catch(e) {
-        document.getElementById('rate-display').innerText = `匯率: ${currentRate} (離線預設)`;
-    }
-    updateExpenseTotals(); // update accounting with new rate
+    } catch(e) {}
+    updateExpenseTotals();
 }
-
 function convert() {
     const jpy = document.getElementById('jpy-input').value;
     document.getElementById('twd-output').value = jpy ? Math.round(jpy * currentRate) : '';
 }
 
-// --- TABS & NAV ---
+// --- TABS ---
 function setDay(dayId, btn) {
     document.querySelectorAll('.day-container').forEach(el => el.classList.remove('active'));
-    // Clear active from both top toolbar and daily tabs
     document.querySelectorAll('.tab').forEach(el => el.classList.remove('active'));
     document.querySelectorAll('.nav-btn').forEach(el => el.classList.remove('active'));
-    
     document.getElementById(dayId).classList.add('active');
     btn.classList.add('active');
 }
 
-// --- COUNTDOWN ---
-function updateCountdowns() {
-    const cards = document.querySelectorAll('.match-card');
-    const now = new Date().getTime();
-    cards.forEach(card => {
-        const timeStr = card.dataset.time;
-        if(!timeStr) return;
-        const matchTime = new Date(timeStr).getTime();
-        const diff = matchTime - now;
-        const timerEl = card.querySelector('.countdown-timer');
-        if (!timerEl) return;
-        if (diff < 0) {
-            if (diff > -14400000) { timerEl.innerHTML = "🔥 LIVE 進行中"; timerEl.style.color = "#22c55e"; }
-            else { timerEl.innerHTML = "🏁 已結束"; timerEl.style.color = "#475569"; card.classList.add('finished'); }
-        } else {
-            const d = Math.floor(diff / (1000 * 60 * 60 * 24));
-            const h = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-            const m = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-            const s = Math.floor((diff % (1000 * 60)) / 1000);
-            timerEl.innerHTML = `${d}d ${h}h ${m}m ${s}s`;
-        }
-    });
-}
-
-// --- EDIT MODE ---
+// --- EDIT MODE LOGIC ---
 function toggleEditMode() {
     isEditing = !isEditing;
     const btn = document.getElementById('editBtn');
     const container = document.getElementById('main-content');
-    try {
-        if (isEditing) {
-            btn.classList.add('active'); container.classList.add('editable-active');
-            document.querySelectorAll('.editable').forEach(el => el.setAttribute('contenteditable', 'true'));
-        } else {
-            btn.classList.remove('active'); container.classList.remove('editable-active');
-            document.querySelectorAll('.editable').forEach(el => el.setAttribute('contenteditable', 'false'));
-            localStorage.setItem('wbc_content_v12', container.innerHTML);
-            alert('行程已儲存');
-        }
-    } catch (e) { alert('無法儲存 (瀏覽器限制)'); }
+    
+    if (isEditing) {
+        btn.classList.add('active'); container.classList.add('editable-active');
+        document.querySelectorAll('.editable').forEach(el => el.setAttribute('contenteditable', 'true'));
+        // 處理地圖連結編輯狀態
+        document.querySelectorAll('.btn-map').forEach(el => {
+            el.onclick = (e) => {
+                e.preventDefault();
+                let url = prompt("編輯地圖網址 (留空則刪除連結):", el.href);
+                if(url !== null) {
+                    if(url.trim() === "") el.setAttribute("href", "");
+                    else el.setAttribute("href", url);
+                    toggleEditMode(); toggleEditMode(); // Refresh visual
+                }
+            };
+        });
+    } else {
+        btn.classList.remove('active'); container.classList.remove('editable-active');
+        document.querySelectorAll('.editable').forEach(el => el.setAttribute('contenteditable', 'false'));
+        document.querySelectorAll('.btn-map').forEach(el => el.onclick = null);
+        
+        localStorage.setItem('wbc_content_v16', container.innerHTML);
+        alert('變更已儲存');
+    }
 }
+
+window.removeEl = function(el) { if(confirm('確定刪除此項目？')) el.parentElement.remove(); }
+
+window.addMapLink = function(el) {
+    let url = prompt("請輸入 Google Maps 網址:");
+    if(url) {
+        let btn = el.parentElement.querySelector('.btn-map');
+        if(btn) {
+            btn.setAttribute('href', url);
+            btn.classList.remove('hidden'); 
+        } else {
+            btn = document.createElement('a');
+            btn.className = 'btn-map';
+            btn.target = '_blank';
+            btn.innerHTML = '📍';
+            btn.href = url;
+            el.parentElement.insertBefore(btn, el);
+        }
+    }
+}
+
+window.addCard = function(type) {
+    const activeDay = document.querySelector('.day-container.active');
+    const controls = activeDay.querySelector('.add-controls');
+    const div = document.createElement('div');
+    div.className = `card ${type}`;
+    div.innerHTML = `
+        <div class="card-del-btn" onclick="removeEl(this)">×</div>
+        <div class="event-info"><div class="time-box editable" contenteditable="true">12:00</div><div class="event-title editable" contenteditable="true">新活動</div></div>
+        <a href="" class="btn-map" target="_blank">📍</a>
+        <div class="map-placeholder" onclick="addMapLink(this)">＋</div>
+    `;
+    activeDay.insertBefore(div, controls);
+}
+
+window.addMatch = function() {
+    const activeDay = document.querySelector('.day-container.active');
+    const controls = activeDay.querySelector('.add-controls');
+    const div = document.createElement('div');
+    div.className = 'match-card';
+    div.dataset.time = "2026-03-01T12:00:00+09:00"; 
+    div.innerHTML = `
+        <div class="card-del-btn" onclick="removeEl(this)">×</div>
+        <div class="match-header"><span class="match-teams editable" contenteditable="true">隊伍 A vs 隊伍 B</span><span class="match-date editable" contenteditable="true">日期 時間</span></div>
+        <div class="countdown-timer">請在代碼中設定時間</div>
+    `;
+    activeDay.insertBefore(div, controls);
+}
+
+window.addTraffic = function() {
+    const activeDay = document.querySelector('.day-container.active');
+    const controls = activeDay.querySelector('.add-controls');
+    const div = document.createElement('div');
+    div.className = 'traffic-node';
+    div.innerHTML = `<div class="card-del-btn" onclick="removeEl(this)">×</div><div class="traffic-pill editable" contenteditable="true">🚶 交通方式</div>`;
+    activeDay.insertBefore(div, controls);
+}
+
 function resetData() {
     if(confirm('重置所有資料？')) {
-        localStorage.removeItem('wbc_content_v12');
-        localStorage.removeItem('wbc_lists_v12');
+        localStorage.removeItem('wbc_content_v16');
+        localStorage.removeItem('wbc_lists_v16');
         location.reload();
     }
 }
 
-// --- LISTS & LINKS & EXPENSES LOGIC ---
+// --- DATA LOGIC ---
 function renderLists() {
-    // Shopping
     const shopEl = document.getElementById('shopping-list');
     if(shopEl) {
         shopEl.innerHTML = '';
         shoppingData.forEach((item, i) => shopEl.appendChild(createItemEl(item, i, 'shopping')));
     }
-    // Packing
-    const packEl = document.getElementById('packing-list');
-    if(packEl) {
-        packEl.innerHTML = '';
-        packingData.forEach((item, i) => packEl.appendChild(createItemEl(item, i, 'packing')));
-    }
-    // Links
     const linkEl = document.getElementById('link-list');
     if(linkEl) {
         linkEl.innerHTML = '';
         linkData.forEach((link, i) => {
-            const div = document.createElement('div');
-            div.className = 'link-item';
-            div.innerHTML = `
-                <a href="${link.url}" target="_blank" class="link-content">
-                    <div class="link-name">${link.name}</div>
-                    <div class="link-url">${link.url}</div>
-                </a>
-                <div class="delete-btn" onclick="deleteLink(${i})">×</div>
-            `;
+            const div = document.createElement('div'); div.className = 'link-item';
+            div.innerHTML = `<a href="${link.url}" target="_blank" class="link-content"><div class="link-name">${link.name}</div><div class="link-url">${link.url}</div></a><div class="delete-btn" onclick="deleteLink(${i})">×</div>`;
             linkEl.appendChild(div);
         });
     }
-    // Expenses
     const expEl = document.getElementById('expense-list');
     if(expEl) {
         expEl.innerHTML = '';
         expenseData.forEach((exp, i) => {
-            const div = document.createElement('div');
-            div.className = 'expense-item';
-            div.innerHTML = `
-                <div class="expense-name">${exp.name}</div>
-                <div style="display:flex; align-items:center;">
-                    <div class="expense-cost">¥${exp.cost}</div>
-                    <div class="delete-btn" onclick="deleteExpense(${i})">×</div>
-                </div>
-            `;
+            const div = document.createElement('div'); div.className = 'expense-item';
+            div.innerHTML = `<div class="expense-name">${exp.name}</div><div style="display:flex;align-items:center;"><div class="expense-cost">¥${exp.cost}</div><div class="delete-btn" onclick="deleteExpense(${i})">×</div></div>`;
             expEl.appendChild(div);
         });
         updateExpenseTotals();
@@ -606,115 +662,87 @@ function renderLists() {
 }
 
 function updateExpenseTotals() {
-    let total = 0;
-    expenseData.forEach(e => total += parseInt(e.cost));
+    let total = 0; expenseData.forEach(e => total += parseInt(e.cost));
     document.getElementById('total-jpy').innerText = `¥${total.toLocaleString()}`;
     document.getElementById('total-twd').innerText = `$${Math.round(total * currentRate).toLocaleString()}`;
 }
 
 function createItemEl(item, index, type) {
-    const div = document.createElement('div');
-    div.className = `checklist-item ${item.checked ? 'checked' : ''}`;
-    div.innerHTML = `
-        <div class="check-group" onclick="toggleItem('${type}', ${index})">
-            <div class="checkbox"></div><div class="item-name">${item.name}</div>
-        </div>
-        <div class="delete-btn" onclick="deleteItem('${type}', ${index})">×</div>
-    `;
+    const div = document.createElement('div'); div.className = `checklist-item ${item.checked ? 'checked' : ''}`;
+    div.innerHTML = `<div class="check-group" onclick="toggleItem('${type}', ${index})"><div class="checkbox"></div><div class="item-name">${item.name}</div></div><div class="delete-btn" onclick="deleteItem('${type}', ${index})">×</div>`;
     return div;
 }
 
 function addItem(type) {
-    const id = type === 'shopping' ? 'new-item' : 'new-pack';
-    const input = document.getElementById(id);
+    const id = 'new-item'; const input = document.getElementById(id);
     const val = input.value.trim();
-    if(val) {
-        if(type === 'shopping') shoppingData.push({name: val, checked: false});
-        else packingData.push({name: val, checked: false});
-        input.value = '';
-        renderLists();
-    }
+    if(val) { shoppingData.push({name: val, checked: false}); input.value = ''; renderLists(); }
 }
-
 function addLink() {
-    const nameInput = document.getElementById('link-name');
-    const urlInput = document.getElementById('link-url');
-    const name = nameInput.value.trim();
-    let url = urlInput.value.trim();
-    if(name && url) {
-        if(!url.startsWith('http')) url = 'https://' + url;
-        linkData.push({name, url});
-        nameInput.value = ''; urlInput.value = '';
-        renderLists();
-    }
+    const nameInput = document.getElementById('link-name'); const urlInput = document.getElementById('link-url');
+    const name = nameInput.value.trim(); let url = urlInput.value.trim();
+    if(name && url) { if(!url.startsWith('http')) url = 'https://' + url; linkData.push({name, url}); nameInput.value = ''; urlInput.value = ''; renderLists(); }
 }
-
 function addExpense() {
-    const nameInput = document.getElementById('exp-name');
-    const costInput = document.getElementById('exp-cost');
-    const name = nameInput.value.trim();
-    const cost = costInput.value;
-    if(name && cost) {
-        expenseData.push({name, cost});
-        nameInput.value = ''; costInput.value = '';
-        renderLists();
-    }
+    const nameInput = document.getElementById('exp-name'); const costInput = document.getElementById('exp-cost');
+    const name = nameInput.value.trim(); const cost = costInput.value;
+    if(name && cost) { expenseData.push({name, cost}); nameInput.value = ''; costInput.value = ''; renderLists(); }
 }
 
-// Global scope functions
-window.toggleItem = function(type, index) {
-    if(type === 'shopping') shoppingData[index].checked = !shoppingData[index].checked;
-    else packingData[index].checked = !packingData[index].checked;
-    renderLists();
-}
-window.deleteItem = function(type, index) {
-    if(confirm('刪除?')) {
-        if(type === 'shopping') shoppingData.splice(index, 1);
-        else packingData.splice(index, 1);
-        renderLists();
-    }
-}
-window.deleteLink = function(index) {
-    if(confirm('刪除連結?')) linkData.splice(index, 1); renderLists();
-}
-window.deleteExpense = function(index) {
-    if(confirm('刪除記帳?')) { expenseData.splice(index, 1); renderLists(); }
-}
+window.toggleItem = function(type, index) { shoppingData[index].checked = !shoppingData[index].checked; renderLists(); }
+window.deleteItem = function(type, index) { if(confirm('刪除?')) { shoppingData.splice(index, 1); renderLists(); } }
+window.deleteLink = function(index) { if(confirm('刪除連結?')) linkData.splice(index, 1); renderLists(); }
+window.deleteExpense = function(index) { if(confirm('刪除記帳?')) { expenseData.splice(index, 1); renderLists(); } }
 
 function saveLists() {
-    const data = { shopping: shoppingData, packing: packingData, links: linkData, expenses: expenseData };
-    try { localStorage.setItem('wbc_lists_v12', JSON.stringify(data)); } catch(e){}
+    const data = { shopping: shoppingData, links: linkData, expenses: expenseData };
+    try { localStorage.setItem('wbc_lists_v16', JSON.stringify(data)); } catch(e){}
 }
 
 // --- INIT ---
 document.addEventListener('DOMContentLoaded', () => {
     setInterval(updateClocks, 1000); updateClocks();
-    setInterval(updateCountdowns, 1000); updateCountdowns();
-    fetchRate(); // Get Real Rate
+    
+    // Countdown logic
+    setInterval(() => {
+        const now = new Date().getTime();
+        document.querySelectorAll('.match-card').forEach(card => {
+            const timeStr = card.dataset.time; if(!timeStr) return;
+            const diff = new Date(timeStr).getTime() - now;
+            const timerEl = card.querySelector('.countdown-timer');
+            if(diff < 0) {
+                 if(diff > -14400000) timerEl.innerHTML = "🔥 LIVE";
+                 else timerEl.innerHTML = "🏁 已結束";
+            } else {
+                 const d = Math.floor(diff/86400000), h = Math.floor((diff%86400000)/3600000), m = Math.floor((diff%3600000)/60000);
+                 timerEl.innerHTML = `${d}d ${h}h ${m}m`;
+            }
+        });
+    }, 1000);
+
+    fetchRate();
 
     // Load Content
     try {
-        const savedHTML = localStorage.getItem('wbc_content_v12');
+        const savedHTML = localStorage.getItem('wbc_content_v16');
         if(savedHTML) document.getElementById('main-content').innerHTML = savedHTML;
 
-        const savedLists = localStorage.getItem('wbc_lists_v12');
+        const savedLists = localStorage.getItem('wbc_lists_v16');
         if(savedLists) {
             const data = JSON.parse(savedLists);
             shoppingData = data.shopping || [];
-            packingData = data.packing || [];
             linkData = data.links || [];
             expenseData = data.expenses || [];
         } else {
-            shoppingData = [{name: "🧤 摩托車手套", checked: false}, {name: "📚 寫真集", checked: false}];
-            packingData = [{name: "🛂 護照", checked: false}, {name: "💳 西瓜卡", checked: false}];
+            shoppingData = [{name: "🧤 摩托車手套", checked: false}];
             linkData = [{name: "WBC官網", url: "https://www.wbc2026.com"}];
         }
-    } catch(e) {
-        console.log("Storage error");
-        shoppingData = []; packingData = []; linkData = []; expenseData = [];
-    }
+    } catch(e) {}
     renderLists();
 });
+</script>
+</body>
+</html>
 </script>
 </body>
 </html>
