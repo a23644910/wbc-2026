@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>WBC 東京戰術儀表板 V16 (最終版)</title>
+    <title>WBC 東京戰術儀表板 V17 (裝備修復版)</title>
     <style>
         :root {
             --bg-gradient: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%);
@@ -179,7 +179,7 @@
         .match-date { font-size: 12px; color: var(--traffic); }
         .countdown-timer { background: rgba(0,0,0,0.4); padding: 8px; border-radius: 6px; font-family: monospace; font-size: 16px; color: var(--accent); text-align: center; letter-spacing: 1px; }
         
-        /* Tools Layout (Fixed V14) */
+        /* Tools Layout */
         .section-title { margin: 25px 0 10px 0; font-size: 12px; color: var(--traffic); letter-spacing: 1px; font-weight: bold; text-transform: uppercase; display: flex; align-items: center; gap: 8px; }
         .section-title::before { content: ''; width: 6px; height: 6px; background: var(--accent); border-radius: 50%; }
         
@@ -565,7 +565,7 @@ function toggleEditMode() {
         document.querySelectorAll('.editable').forEach(el => el.setAttribute('contenteditable', 'false'));
         document.querySelectorAll('.btn-map').forEach(el => el.onclick = null);
         
-        localStorage.setItem('wbc_content_v16', container.innerHTML);
+        localStorage.setItem('wbc_content_v17', container.innerHTML);
         alert('變更已儲存');
     }
 }
@@ -629,8 +629,8 @@ window.addTraffic = function() {
 
 function resetData() {
     if(confirm('重置所有資料？')) {
-        localStorage.removeItem('wbc_content_v16');
-        localStorage.removeItem('wbc_lists_v16');
+        localStorage.removeItem('wbc_content_v17');
+        localStorage.removeItem('wbc_lists_v17');
         location.reload();
     }
 }
@@ -641,6 +641,11 @@ function renderLists() {
     if(shopEl) {
         shopEl.innerHTML = '';
         shoppingData.forEach((item, i) => shopEl.appendChild(createItemEl(item, i, 'shopping')));
+    }
+    const packEl = document.getElementById('packing-list');
+    if(packEl) {
+        packEl.innerHTML = '';
+        packingData.forEach((item, i) => packEl.appendChild(createItemEl(item, i, 'packing')));
     }
     const linkEl = document.getElementById('link-list');
     if(linkEl) {
@@ -708,7 +713,7 @@ window.deleteExpense = function(index) { if(confirm('刪除記帳?')) { expenseD
 
 function saveLists() {
     const data = { shopping: shoppingData, packing: packingData, links: linkData, expenses: expenseData };
-    try { localStorage.setItem('wbc_lists_v16', JSON.stringify(data)); } catch(e){}
+    try { localStorage.setItem('wbc_lists_v17', JSON.stringify(data)); } catch(e){}
 }
 
 // --- INIT ---
@@ -736,10 +741,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Load Content
     try {
-        const savedHTML = localStorage.getItem('wbc_content_v16');
+        const savedHTML = localStorage.getItem('wbc_content_v17');
         if(savedHTML) document.getElementById('main-content').innerHTML = savedHTML;
 
-        const savedLists = localStorage.getItem('wbc_lists_v16');
+        const savedLists = localStorage.getItem('wbc_lists_v17');
         if(savedLists) {
             const data = JSON.parse(savedLists);
             shoppingData = data.shopping || [];
@@ -760,7 +765,8 @@ document.addEventListener('DOMContentLoaded', () => {
             packingData = [
                 {name: "🛂 護照", checked: false}, 
                 {name: "💳 西瓜卡/信用卡", checked: false},
-                {name: "🎫 WBC 門票", checked: false}
+                {name: "🎫 WBC 門票", checked: false},
+                {name: "🎧 Moto A2 Plus (回台改裝)", checked: false}
             ];
             linkData = [{name: "WBC官網", url: "https://www.wbc2026.com"}];
         }
