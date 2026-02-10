@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>WBC 東京戰術儀表板 V17 (裝備修復版)</title>
+    <title>WBC 東京戰術儀表板 V18 (登機門版)</title>
     <style>
         :root {
             --bg-gradient: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%);
@@ -161,7 +161,14 @@
         }
         .flight-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
         .flight-code { font-family: monospace; font-weight: bold; color: var(--flight); font-size: 18px; }
-        .flight-body { display: flex; justify-content: space-between; align-items: center; }
+        /* Gate Style */
+        .gate-box {
+            background: rgba(0,0,0,0.4); border: 1px solid var(--flight); border-radius: 6px;
+            padding: 2px 8px; font-family: monospace; font-size: 14px; color: white; display: flex; align-items: center; gap: 5px;
+        }
+        .gate-label { font-size: 10px; color: var(--flight); font-weight: bold; }
+        
+        .flight-body { display: flex; justify-content: space-between; align-items: center; margin-top: 10px; }
         .airport { text-align: center; }
         .ap-code { font-size: 20px; font-weight: bold; display: block; }
         .ap-time { font-size: 14px; font-family: monospace; }
@@ -316,31 +323,34 @@
     <div id="d1" class="day-container">
         <div class="card move">
             <div class="card-del-btn" onclick="removeEl(this)">×</div>
-            <div class="event-info"><div class="time-box editable">09:50</div><div class="event-title editable">嘉義自宅</div></div>
+            <div class="event-info"><div class="time-box editable">10:30</div><div class="event-title editable">嘉義自宅出發</div></div>
         </div>
         <div class="traffic-node">
             <div class="card-del-btn" onclick="removeEl(this)">×</div>
-            <div class="traffic-pill editable">🚕 計程車 (20分)</div>
+            <div class="traffic-pill editable">🚕 計程車</div>
         </div>
         <div class="card move">
             <div class="card-del-btn" onclick="removeEl(this)">×</div>
-            <div class="event-info"><div class="time-box editable">10:49</div><div class="event-title editable">高鐵嘉義站</div></div>
+            <div class="event-info"><div class="time-box editable">11:08</div><div class="event-title editable">高鐵 628 (車上吃便當)</div></div>
         </div>
         <div class="traffic-node">
             <div class="card-del-btn" onclick="removeEl(this)">×</div>
-            <div class="traffic-pill editable">🚄 高鐵 622 + 機捷</div>
+            <div class="traffic-pill editable">🚄 628 直達 (12:09 抵達)</div>
         </div>
         <div class="card move">
             <div class="card-del-btn" onclick="removeEl(this)">×</div>
-            <div class="event-info"><div class="time-box editable">13:00</div><div class="event-title editable">桃園機場 T1</div></div>
+            <div class="event-info"><div class="time-box editable">12:40</div><div class="event-title editable">機捷抵達 T1</div></div>
         </div>
         <div class="traffic-node">
             <div class="card-del-btn" onclick="removeEl(this)">×</div>
-            <div class="traffic-pill editable">🚶 貴賓室體驗 / 登機</div>
+            <div class="traffic-pill editable">🚶 自助托運 / 安檢</div>
         </div>
         <div class="flight-card">
             <div class="card-del-btn" onclick="removeEl(this)">×</div>
-            <div class="flight-header"><span class="flight-code editable">JX 804</span><span class="flight-airline editable">STARLUX 星宇</span></div>
+            <div class="flight-header">
+                <span class="flight-code editable">JX 804</span>
+                <div class="gate-box"><span class="gate-label">GATE</span><span class="editable">--</span></div>
+            </div>
             <div class="flight-body">
                 <div class="airport"><span class="ap-code editable">TPE</span><span class="ap-time editable">15:00</span></div>
                 <div class="flight-duration editable">3h 00m</div>
@@ -354,7 +364,7 @@
         </div>
         <div class="card move">
             <div class="card-del-btn" onclick="removeEl(this)">×</div>
-            <div class="event-info"><div class="time-box editable">20:00</div><div class="event-title editable">La Vista (豐洲)</div></div>
+            <div class="event-info"><div class="time-box editable">20:30</div><div class="event-title editable">La Vista (豐洲)</div></div>
             <a href="https://www.google.com/maps/search/?api=1&query=La+Vista+Tokyo+Bay" class="btn-map" target="_blank">📍</a>
             <div class="map-placeholder" onclick="addMapLink(this)">＋</div>
         </div>
@@ -416,7 +426,7 @@
     <div id="d4" class="day-container">
         <div class="card game"><div class="card-del-btn" onclick="removeEl(this)">×</div><div class="event-info"><div class="time-box editable">12:00</div><div class="event-title editable">⚾ 中華 vs 捷克</div></div></div>
         <div class="traffic-node"><div class="card-del-btn" onclick="removeEl(this)">×</div><div class="traffic-pill editable">Ⓜ️ 丸之內線</div></div>
-        <div class="card shop"><div class="card-del-btn" onclick="removeEl(this)">×</div><div class="event-info"><div class="time-box editable">16:30</div><div class="event-title editable">MUJI 銀座 / Uniqlo</div></div><a href="https://www.google.com/maps/search/?api=1&query=MUJI+Ginza" class="btn-map" target="_blank">📍</a><div class="map-placeholder" onclick="addMapLink(this)">＋</div></div>
+        <div class="card shop"><div class="card-del-btn" onclick="removeEl(this)">×</div><div class="event-info"><div class="time-box editable">16:30</div><div class="event-title editable">Uniqlo / 銀座逛街</div></div><a href="https://www.google.com/maps/search/?api=1&query=MUJI+Ginza" class="btn-map" target="_blank">📍</a><div class="map-placeholder" onclick="addMapLink(this)">＋</div></div>
         <div class="traffic-node"><div class="card-del-btn" onclick="removeEl(this)">×</div><div class="traffic-pill editable">🚶 步行</div></div>
         <div class="card food"><div class="card-del-btn" onclick="removeEl(this)">×</div><div class="event-info"><div class="time-box editable">18:30</div><div class="event-title editable">根岸牛舌</div></div><a href="https://www.google.com/maps/search/?api=1&query=Negishi+Ginza+Namiki-dori" class="btn-map" target="_blank">📍</a><div class="map-placeholder" onclick="addMapLink(this)">＋</div></div>
         <div class="add-controls"><div class="add-btn-small" onclick="addCard('move')">+ 移動</div><div class="add-btn-small" onclick="addTraffic()">+ 交通</div><div class="add-btn-small" onclick="addCard('game')">+ 球賽</div><div class="add-btn-small" onclick="addCard('food')">+ 餐廳</div><div class="add-btn-small" onclick="addCard('shop')">+ 購物</div></div>
@@ -439,7 +449,10 @@
         <div class="traffic-node"><div class="card-del-btn" onclick="removeEl(this)">×</div><div class="traffic-pill editable">🚶 辦理登機</div></div>
         <div class="flight-card">
             <div class="card-del-btn" onclick="removeEl(this)">×</div>
-            <div class="flight-header"><span class="flight-code editable">JX 803</span><span class="flight-airline editable">STARLUX 星宇</span></div>
+            <div class="flight-header">
+                <span class="flight-code editable">JX 803</span>
+                <div class="gate-box"><span class="gate-label">GATE</span><span class="editable">--</span></div>
+            </div>
             <div class="flight-body">
                 <div class="airport"><span class="ap-code editable">NRT</span><span class="ap-time editable">15:40</span></div>
                 <div class="flight-duration editable">4h 05m</div>
@@ -565,7 +578,7 @@ function toggleEditMode() {
         document.querySelectorAll('.editable').forEach(el => el.setAttribute('contenteditable', 'false'));
         document.querySelectorAll('.btn-map').forEach(el => el.onclick = null);
         
-        localStorage.setItem('wbc_content_v17', container.innerHTML);
+        localStorage.setItem('wbc_content_v18', container.innerHTML);
         alert('變更已儲存');
     }
 }
@@ -629,8 +642,8 @@ window.addTraffic = function() {
 
 function resetData() {
     if(confirm('重置所有資料？')) {
-        localStorage.removeItem('wbc_content_v17');
-        localStorage.removeItem('wbc_lists_v17');
+        localStorage.removeItem('wbc_content_v18');
+        localStorage.removeItem('wbc_lists_v18');
         location.reload();
     }
 }
@@ -642,6 +655,7 @@ function renderLists() {
         shopEl.innerHTML = '';
         shoppingData.forEach((item, i) => shopEl.appendChild(createItemEl(item, i, 'shopping')));
     }
+    // V17 Fix: Packing List Render
     const packEl = document.getElementById('packing-list');
     if(packEl) {
         packEl.innerHTML = '';
@@ -713,7 +727,7 @@ window.deleteExpense = function(index) { if(confirm('刪除記帳?')) { expenseD
 
 function saveLists() {
     const data = { shopping: shoppingData, packing: packingData, links: linkData, expenses: expenseData };
-    try { localStorage.setItem('wbc_lists_v17', JSON.stringify(data)); } catch(e){}
+    try { localStorage.setItem('wbc_lists_v18', JSON.stringify(data)); } catch(e){}
 }
 
 // --- INIT ---
@@ -741,10 +755,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Load Content
     try {
-        const savedHTML = localStorage.getItem('wbc_content_v17');
+        const savedHTML = localStorage.getItem('wbc_content_v18');
         if(savedHTML) document.getElementById('main-content').innerHTML = savedHTML;
 
-        const savedLists = localStorage.getItem('wbc_lists_v17');
+        const savedLists = localStorage.getItem('wbc_lists_v18');
         if(savedLists) {
             const data = JSON.parse(savedLists);
             shoppingData = data.shopping || [];
